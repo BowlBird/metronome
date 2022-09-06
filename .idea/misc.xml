@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2295" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2295" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/icon_background.xml" value="0.22" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/layout_bg.xml" value="0.2295" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/rounded_rectangle.xml" value="0.2295" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/splash_screen.xml" value="0.2295" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_landscape.xml" value="0.2015625" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_main.xml" value="0.192" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_main2.xml" value="0.22826086956521738" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_main_land.xml" value="0.2015625" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_portrait.xml" value="0.2015625" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/features_layout1.xml" value="0.2848731884057971" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/landscape_activity.xml" value="0.2848731884057971" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/sound_settings.xml" value="0.2848731884057971" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/support_settings.xml" value="0.2848731884057971" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/training_settings.xml" value="0.2848731884057971" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.209" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.209" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>
