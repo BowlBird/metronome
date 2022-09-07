@@ -15,7 +15,7 @@ import com.carsonmiller.metronome.pager.*
 class PortraitActivity : AbstractOrientationActivity() {
 
     /**
-     * Instance vars
+     * vars
      */
     private lateinit var viewPager: ViewPager2
     private var portraitViews = arrayOf(MetronomeSettingsFragment() as Fragment,
@@ -24,11 +24,9 @@ class PortraitActivity : AbstractOrientationActivity() {
                                         SupportSettingsFragment() as Fragment)
 
     /**
-     * method that creates an instance of this activity
+     * initializes the activity
      */
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        WindowCompat.setDecorFitsSystemWindows(window,false) //for edge-to-edge display
+    override fun initialize() {
         setContentView(R.layout.activity_portrait)
 
         // Instantiate a ViewPager2 and a PagerAdapter.
@@ -38,6 +36,8 @@ class PortraitActivity : AbstractOrientationActivity() {
         val pagerAdapter = SettingsPagerAdapter(portraitViews,this)
         viewPager.adapter = pagerAdapter
     }
+
+
 
     /**
      * Handles rotation event to landscape mode
