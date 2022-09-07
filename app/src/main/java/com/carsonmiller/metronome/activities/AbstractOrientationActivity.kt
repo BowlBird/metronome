@@ -9,11 +9,16 @@ import android.os.PersistableBundle
 import androidx.core.view.WindowCompat
 import java.lang.RuntimeException
 
-abstract class AbstractOrientationActivity : AppCompatActivity() {
+abstract class AbstractOrientationActivity(private var contentViewActivity: Int = -1) : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window,false) //for edge-to-edge display
+
+        //sets content view and throws an exception if not overridden
+        if(contentViewActivity == -1)
+            throw RuntimeException("Need contentViewActivity to be set in constructor.")
+        setContentView(contentViewActivity)
 
         //created function to streamline initialization
         initialize()

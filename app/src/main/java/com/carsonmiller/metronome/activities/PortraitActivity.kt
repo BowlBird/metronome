@@ -12,7 +12,7 @@ import com.carsonmiller.metronome.pager.*
 /**
  * Class that handles the app when in portrait mode
  */
-class PortraitActivity : AbstractOrientationActivity() {
+class PortraitActivity : AbstractOrientationActivity(R.layout.activity_portrait) {
 
     /**
      * vars
@@ -27,8 +27,6 @@ class PortraitActivity : AbstractOrientationActivity() {
      * initializes the activity
      */
     override fun initialize() {
-        setContentView(R.layout.activity_portrait)
-
         // Instantiate a ViewPager2 and a PagerAdapter.
         viewPager = findViewById(R.id.vp2Features)
 

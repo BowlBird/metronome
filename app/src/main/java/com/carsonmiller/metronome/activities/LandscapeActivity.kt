@@ -8,13 +8,12 @@ import com.carsonmiller.metronome.R
 /**
  * Activity that handles app when in landscape view
  */
-class LandscapeActivity : AbstractOrientationActivity() {
+class LandscapeActivity : AbstractOrientationActivity(R.layout.activity_landscape) {
 
     /**
      * Method that handles creation of activity
      */
     override fun initialize() {
-        setContentView(R.layout.activity_landscape)
     }
 
     /**
