@@ -34,7 +34,8 @@
             android:scaleType="centerInside"
             android:scaleX="5"
             android:scaleY="1"
-            android:src="@drawable/siennawalking" />
+            android:src="@drawable/siennawalking"
+            tools:ignore="ImageContrastCheck" />
     </HorizontalScrollView>
 
     <androidx.viewpager2.widget.ViewPager2
@@ -58,14 +59,50 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:layout_marginStart="250dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginEnd="120dp"
         android:layout_marginBottom="25dp"
         app:layout_constraintBottom_toTopOf="@+id/hsvMusicStaff"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/quarter_note" />
+
+    <TextView
+        android:id="@+id/tvBpmEquals"
+        android:layout_width="6dp"
+        android:layout_height="25dp"
+        android:layout_marginBottom="25dp"
+        android:gravity="center"
+        android:text="="
+        android:textAlignment="center"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintBottom_toTopOf="@+id/hsvMusicStaff"
+        app:layout_constraintStart_toEndOf="@+id/ivBpmNote" />
+
+    <TextView
+        android:id="@+id/tvBpmNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_marginBottom="25dp"
+        android:gravity="center|left"
+        android:paddingStart="7dp"
+        android:paddingEnd="7dp"
+        android:text="333"
+        android:textAlignment="center"
+        android:textColor="@color/primaryTextColor"
+        app:layout_constraintBottom_toTopOf="@+id/hsvMusicStaff"
+        app:layout_constraintStart_toEndOf="@+id/tvBpmEquals" />
+
+    <TextView
+        android:id="@+id/tvBpmText"
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:layout_marginBottom="25dp"
+        android:gravity="center"
+        android:text="bpm"
+        android:textColor="@color/primaryLightColor"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toTopOf="@+id/hsvMusicStaff"
+        app:layout_constraintStart_toEndOf="@+id/tvBpmNumber" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
