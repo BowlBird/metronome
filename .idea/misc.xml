@@ -5,6 +5,7 @@
       <map>
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.2295" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/ic_launcher_background.xml" value="0.2295" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/ic_quarter_note.xml" value="0.2155" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/icon_background.xml" value="0.22" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/layout_bg.xml" value="0.2295" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/drawable/rounded_rectangle.xml" value="0.2295" />
@@ -13,7 +14,7 @@
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_main.xml" value="0.192" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_main2.xml" value="0.22826086956521738" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_main_land.xml" value="0.2015625" />
-        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_portrait.xml" value="0.2015625" />
+        <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/activity_portrait.xml" value="0.33" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/features_layout1.xml" value="0.2848731884057971" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/landscape_activity.xml" value="0.2848731884057971" />
         <entry key="..\:/Users/Carson/AndroidStudioProjects/Metronome/app/src/main/res/layout/sound_settings.xml" value="0.2848731884057971" />

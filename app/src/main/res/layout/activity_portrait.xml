@@ -28,8 +28,8 @@
             android:id="@+id/ivSienna"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:contentDescription="@string/h_hewwo"
             android:adjustViewBounds="false"
+            android:contentDescription="@string/h_hewwo"
             android:cropToPadding="false"
             android:scaleType="centerInside"
             android:scaleX="5"
@@ -52,5 +52,20 @@
 
 
     </androidx.viewpager2.widget.ViewPager2>
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginStart="250dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="25dp"
+        app:layout_constraintBottom_toTopOf="@+id/hsvMusicStaff"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/ic_quarter_note" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
