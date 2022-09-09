@@ -24,7 +24,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
-        <FrameLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent">
 
@@ -34,15 +34,56 @@
                 android:layout_height="match_parent"
                 android:contentDescription="@string/music_staff"
                 android:scaleX="1000"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
                 app:srcCompat="@drawable/ic_music_staff" />
-        </FrameLayout>
+
+            <TextView
+                android:id="@+id/tvTimeSignatureNumerator"
+                android:layout_width="28dp"
+                android:layout_height="46dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/time_signature_font"
+                android:text="@string/default_time_signature"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="@color/primaryTextColor"
+                android:textSize="80dp"
+                android:typeface="normal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="SpUsage" />
+
+            <TextView
+                android:id="@+id/tvTimeSignatureDenominator"
+                android:layout_width="28dp"
+                android:layout_height="46dp"
+                android:layout_marginBottom="17dp"
+                android:fontFamily="@font/time_signature_font"
+                android:text="@string/default_time_signature"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="@color/primaryTextColor"
+                android:textSize="80dp"
+                android:typeface="normal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/tvTimeSignatureNumerator"
+                tools:ignore="SpUsage" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </HorizontalScrollView>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/vp2Features"
-        android:layout_width="247dp"
+        android:layout_width="0dp"
         android:layout_height="397dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="32dp"
         android:background="@drawable/rounded_rectangle"
         android:overScrollMode="never"

@@ -5,6 +5,7 @@
     <string name="music_staff">Music Staff</string>
     <string name="equals_sign">=</string>
     <string name="default_bpm">100</string>
+    <string name="default_time_signature">4</string>
     <string name="bpm_text">bpm</string>
 
     <!-- Notes -->
