@@ -14,6 +14,7 @@ class LandscapeActivity : AbstractOrientationActivity(R.layout.activity_landscap
      * Method that handles creation of activity
      */
     override fun initialize() {
+
     }
 
     /**

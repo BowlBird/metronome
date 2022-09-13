@@ -1,13 +1,15 @@
 package com.carsonmiller.metronome.activities
 
 
+import android.content.Intent
 import android.content.res.Configuration
-import android.os.Bundle
-import androidx.core.view.WindowCompat
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
+import com.carsonmiller.metronome.ComposeActivity
 import com.carsonmiller.metronome.R
 import com.carsonmiller.metronome.pager.*
+
 
 /**
  * Class that handles the app when in portrait mode
@@ -35,7 +37,13 @@ class PortraitActivity : AbstractOrientationActivity(R.layout.activity_portrait)
         viewPager.adapter = pagerAdapter
     }
 
-
+    /*
+    TEMPORARY
+     */
+    open fun goToAnActivity(view: View?) {
+        val intent = Intent(this, ComposeActivity()::class.java)
+        startActivity(intent)
+    }
 
     /**
      * Handles rotation event to landscape mode

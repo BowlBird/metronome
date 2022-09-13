@@ -17,5 +17,6 @@
     <string name="thirty_second_note">Thirty-Second Note</string>
     <string name="sixty_fourth_note">Sixty-Fourth Note</string>
     <string name="one_hundred_twenty_eighth_note">One Hundred Twenty Eighth Note</string>
+    <string name="title_activity_compose">ComposeActivity</string>
 
 </resources>
