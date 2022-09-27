@@ -1,21 +1,4 @@
 <resources>
     <string name="app_name">Metronome</string>
-
-    <!-- Screen Constant Text -->
-    <string name="music_staff">Music Staff</string>
-    <string name="equals_sign">=</string>
-    <string name="default_bpm">100</string>
-    <string name="default_time_signature">4</string>
-    <string name="bpm_text">bpm</string>
-
-    <!-- Notes -->
-    <string name="whole_note">Whole Note</string>
-    <string name="half_note">Half Note</string>
-    <string name="quarter_note">Quarter Note</string>
-    <string name="eighth_note">Eighth Note</string>
-    <string name="sixteenth_note">Sixteenth Note</string>
-    <string name="thirty_second_note">Thirty-Second Note</string>
-    <string name="sixty_fourth_note">Sixty-Fourth Note</string>
-    <string name="one_hundred_twenty_eighth_note">One Hundred Twenty Eighth Note</string>
-
+    <string name="title_activity_compose">ComposeActivity</string>
 </resources>
