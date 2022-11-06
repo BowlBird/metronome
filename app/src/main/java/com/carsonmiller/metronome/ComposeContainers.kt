@@ -21,7 +21,7 @@ import com.google.accompanist.pager.rememberPagerState
  */
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun PagerContainer(modifier: Modifier = Modifier, vararg page: @Composable () -> Unit) {
+fun PagerContainer(modifier: Modifier = Modifier, vararg page: @Composable () -> Unit) =
     HorizontalPager(
         modifier = modifier,
         count = page.size,
@@ -29,19 +29,6 @@ fun PagerContainer(modifier: Modifier = Modifier, vararg page: @Composable () ->
     ) {
         page[it].invoke()
     }
-}
-
-/**
- * TODO
- */
-@Composable
-fun ButtonContainer(modifier: Modifier) {
-    Box(
-        modifier = modifier
-    ) {
-
-    }
-}
 
 @Composable
 fun HorizontalScrollContainer(modifier: Modifier = Modifier, contents: @Composable () -> Unit) =
@@ -57,6 +44,6 @@ fun Modifier.containerModifier(height: Dp = 0.dp) = composed {
         .fillMaxWidth()
         .height(height)
         .padding(screenSettings.containerSidePadding, screenSettings.containerHeightPadding)
-        .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
+        .clip(RoundedCornerShape(screenSettings.cornerRounding))
         .background(color = MaterialTheme.colorScheme.primaryContainer)
 }

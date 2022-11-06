@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -58,6 +59,7 @@ data class ScreenSettings(
     /* padding */
     val containerSidePadding: @RawValue Dp = 32.dp,
     val containerHeightPadding: @RawValue Dp = 0.dp,
+    val innerPadding: @RawValue Dp = 10.dp, //for inside containers
     /* margins */
     val containerMargins: @RawValue Dp = 20.dp,
     /* container heights */
@@ -69,56 +71,38 @@ data class ScreenSettings(
 @Preview
 @Composable
 fun MainLayout() = ConstraintLayout(
+    containerConstraints(),
     modifier = Modifier
         .fillMaxSize()
         .background(color = colorScheme.background)
 )
 {
-
-    //refs for each composable held in constraint layout
-    val (scrollBox, buttonBox, settingsBox, bpmText) = createRefs()
-
     //text for bpm
     BpmText(
         modifier = Modifier
             .wrapContentSize()
-            .constrainAs(bpmText) {
-                end.linkTo(
-                    parent.end,
-                    margin = ScreenSettings().containerSidePadding * 2
-                ) //*2 for some contrast
-                bottom.linkTo(
-                    scrollBox.top,
-                    margin = ScreenSettings().containerMargins / 2 // / 2 to make it closer
-                )
-            }
+            .layoutId("bpmText")
     )
 
     //Music staff container
     ScrollableStaffContents(
         modifier = Modifier
             .containerModifier(ScreenSettings().scrollHeight)
-            .constrainAs(scrollBox) {
-                bottom.linkTo(buttonBox.top, margin = ScreenSettings().containerMargins)
-            }
+            .layoutId("scrollBox")
     )
 
     //Button container
-    ButtonContainer(
+    Box(
         modifier = Modifier
             .containerModifier(ScreenSettings().buttonHeight)
-            .constrainAs(buttonBox) {
-                centerVerticallyTo(parent, .4f)
-            }
+            .layoutId("buttonBox")
     )
 
     //settings container
     PagerContainer(
         modifier = Modifier
             .containerModifier(ScreenSettings().settingsHeight)
-            .constrainAs(settingsBox) {
-                top.linkTo(buttonBox.bottom, margin = ScreenSettings().containerMargins)
-            },
+            .layoutId("settingsBox"),
         { Text("Test") },
         { Text("Test2") },
         { Text("Test3") }
@@ -129,32 +113,23 @@ fun MainLayout() = ConstraintLayout(
  * Text that shows current bpm
  */
 @Composable
-fun BpmText(modifier: Modifier, bpm: Int = 100) {
+fun BpmText(modifier: Modifier = Modifier, bpm: Int = 100) {
     ConstraintLayout(
+        textConstraints(),
         modifier = modifier
     ) {
-
-        val (num, bpmText) = createRefs()
-
         //number
         Text(
+            modifier = Modifier.layoutId("num"),
             text = "$bpm",
-            modifier = Modifier
-                .constrainAs(num) {
-                    start.linkTo(parent.start)
-                    top.linkTo(parent.top)
-                },
             color = colorScheme.onBackground,
             style = typography.labelLarge
         )
 
         //bpm text
         Text(
+            modifier = Modifier.layoutId("bpmText"),
             text = "bpm",
-            modifier = Modifier
-                .constrainAs(bpmText) {
-                    start.linkTo(num.end, margin = 5.dp)
-                },
             color = colorScheme.secondary,
             style = typography.labelLarge,
             fontStyle = FontStyle.Italic
@@ -163,19 +138,17 @@ fun BpmText(modifier: Modifier, bpm: Int = 100) {
 }
 
 @Composable
-fun ScrollableStaffContents(modifier: Modifier) {
+fun ScrollableStaffContents(modifier: Modifier = Modifier) {
     val settings: MutableState<MusicSettings> =
         rememberSaveable { mutableStateOf(MusicSettings(4, 4)) }
-    val padding = 10.dp
 
     //box to hold everything in one container
     Box(modifier = modifier) {
-
         //time signature container
         Box(
             modifier = Modifier
-                .padding(padding)
-                .clip(RoundedCornerShape(10.dp))
+                .padding(ScreenSettings().innerPadding)
+                .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
                 .background(color = colorScheme.inversePrimary)
                 .fillMaxHeight()
                 .width(50.dp),
@@ -191,8 +164,8 @@ fun ScrollableStaffContents(modifier: Modifier) {
         //Notes and Music Bar Holder
         Box(
             modifier = Modifier
-                .padding(70.dp, padding, padding, padding)
-                .clip(RoundedCornerShape(10.dp))
+                .padding(70.dp, ScreenSettings().innerPadding, ScreenSettings().innerPadding, ScreenSettings().innerPadding)
+                .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
                 .background(color = colorScheme.inversePrimary)
                 .fillMaxHeight()
                 .fillMaxWidth()
@@ -202,19 +175,16 @@ fun ScrollableStaffContents(modifier: Modifier) {
             MusicBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(0.dp, (20).dp),
+                    .offset(y = 20.dp),
                 4f
             )
 
             //row
-            HorizontalScrollContainer(
-                modifier = Modifier.padding(13.dp)
-            ) {
-                //notes
+            HorizontalScrollContainer {
                 repeat(100) {
                     Note(
-                        modifier = Modifier,
-                        R.drawable.ic_one_hundred_twenty_eighth_note_both_connected
+                        modifier = Modifier.height(55.dp).offset(y = 12.dp),
+                        note = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected
                     )
                 }
             }
@@ -226,7 +196,7 @@ fun ScrollableStaffContents(modifier: Modifier) {
  * ToDo
  */
 @Composable
-fun Note(modifier: Modifier, note: Int) {
+fun Note(modifier: Modifier = Modifier, note: Int) {
     Image(
         painterResource(id = note),
         modifier = modifier
@@ -287,19 +257,19 @@ fun TimeSignature(
     }
 
     ConstraintLayout(
+        bpmConstraints(),
         modifier = modifier
             .wrapContentSize()
     )
     {
-        val (topNum, bottomNum) = createRefs()
         TimeSignatureNumber(
-            modifier = Modifier.constrainAs(topNum) { top.linkTo(parent.top) },
+            modifier = Modifier.layoutId("topText"),
             value = numerator,
             fontSize = spFontSize,
             color = color
         ) //numerator
         TimeSignatureNumber(
-            modifier = Modifier.constrainAs(bottomNum) { top.linkTo(topNum.top, margin = 35.dp) },
+            modifier = Modifier.layoutId("bottomText"),
             value = denominator, fontSize = spFontSize,
             color = color
         ) //denominator
