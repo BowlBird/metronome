@@ -1,5 +1,7 @@
 package com.carsonmiller.metronome
 
+import android.app.Activity
+import android.content.Context
 import android.os.Bundle
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
@@ -8,12 +10,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,7 +24,6 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -36,19 +35,54 @@ import com.carsonmiller.metronome.ui.theme.typography
 import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
+
 class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MetronomeTheme { MainLayout() } }
+        setContent {
+            //val settings: MusicSettingsViewModel by viewModels()
+            val settings = PersistentMusicSettings(this)
+            MetronomeTheme { MainLayout(settings) }
+        }
     }
 }
 
 /**
  * holder for settings
  */
-@Parcelize
-data class MusicSettings(val numerator: Int = 4, val denominator: Int = 4, val bpm: Int = 100) :
-    Parcelable
+class PersistentMusicSettings(activity: Activity) {
+    private val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
+        /* strings for sharedPref */
+        private val numeratorString = "numerator"
+        private val denominatorString = "denominator"
+        private val bpmString = "bpm"
+
+    /* backing fields */
+    private var _numerator: Int by mutableStateOf(sharedPref.getInt(numeratorString,4))
+    private var _denominator: Int by mutableStateOf(sharedPref.getInt(denominatorString, 4))
+    private var _bpm: Int by mutableStateOf(sharedPref.getInt(bpmString, 4))
+
+    var numerator: Int
+        get() = _numerator
+        set(value) {
+            sharedPref.edit().putInt(numeratorString, value).apply()
+            _numerator = value
+        }
+
+    var denominator: Int
+        get() = _denominator
+        set(value) {
+        sharedPref.edit().putInt(denominatorString,value).apply()
+        _denominator = value
+    }
+
+    var bpm: Int
+        get() = _bpm
+        set(value) {
+            sharedPref.edit().putInt(bpmString, value).apply()
+            _bpm = value
+        }
+}
 
 /**
  * Ideally this will just be a bunch of constants functions can use to not bloat parameter lists.
@@ -68,9 +102,8 @@ data class ScreenSettings(
     val settingsHeight: @RawValue Dp = 400.dp
 ) : Parcelable
 
-@Preview
 @Composable
-fun MainLayout() = ConstraintLayout(
+fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
     containerConstraints(),
     modifier = Modifier
         .fillMaxSize()
@@ -88,14 +121,16 @@ fun MainLayout() = ConstraintLayout(
     ScrollableStaffContents(
         modifier = Modifier
             .containerModifier(ScreenSettings().scrollHeight)
-            .layoutId("scrollBox")
+            .layoutId("scrollBox"),
+        settings = settings
     )
 
     //Button container
-    Box(
+    ButtonContents(
         modifier = Modifier
             .containerModifier(ScreenSettings().buttonHeight)
-            .layoutId("buttonBox")
+            .layoutId("buttonBox"),
+        settings = settings
     )
 
     //settings container
@@ -138,9 +173,7 @@ fun BpmText(modifier: Modifier = Modifier, bpm: Int = 100) {
 }
 
 @Composable
-fun ScrollableStaffContents(modifier: Modifier = Modifier) {
-    val settings: MutableState<MusicSettings> =
-        rememberSaveable { mutableStateOf(MusicSettings(4, 4)) }
+fun ScrollableStaffContents(modifier: Modifier = Modifier, settings: PersistentMusicSettings) {
 
     //box to hold everything in one container
     Box(modifier = modifier) {
@@ -151,20 +184,25 @@ fun ScrollableStaffContents(modifier: Modifier = Modifier) {
                 .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
                 .background(color = colorScheme.inversePrimary)
                 .fillMaxHeight()
-                .width(50.dp),
+                .width(55.dp),
             contentAlignment = Alignment.Center
         ) {
             TimeSignature(
                 modifier = Modifier,
-                settings.component1().numerator,
-                settings.component1().denominator
+                settings.numerator,
+                settings.denominator
             )
         }
 
         //Notes and Music Bar Holder
         Box(
             modifier = Modifier
-                .padding(70.dp, ScreenSettings().innerPadding, ScreenSettings().innerPadding, ScreenSettings().innerPadding)
+                .padding(
+                    75.dp,
+                    ScreenSettings().innerPadding,
+                    ScreenSettings().innerPadding,
+                    ScreenSettings().innerPadding
+                )
                 .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
                 .background(color = colorScheme.inversePrimary)
                 .fillMaxHeight()
@@ -183,11 +221,26 @@ fun ScrollableStaffContents(modifier: Modifier = Modifier) {
             HorizontalScrollContainer {
                 repeat(100) {
                     Note(
-                        modifier = Modifier.height(55.dp).offset(y = 12.dp),
+                        modifier = Modifier
+                            .height(55.dp)
+                            .offset(y = 12.dp),
                         note = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun ButtonContents(modifier: Modifier = Modifier, settings: PersistentMusicSettings) {
+    Box(
+        modifier = modifier
+    ) {
+        Button(onClick = {
+            settings.numerator += 1
+        }) {
+
         }
     }
 }
