@@ -3,14 +3,12 @@ package com.carsonmiller.metronome
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -32,7 +30,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.carsonmiller.metronome.ui.theme.MetronomeTheme
 import com.carsonmiller.metronome.ui.theme.musicFont
 import com.carsonmiller.metronome.ui.theme.typography
-import kotlinx.parcelize.Parcelize
 import kotlinx.parcelize.RawValue
 
 
@@ -52,13 +49,14 @@ class ComposeActivity : ComponentActivity() {
  */
 class PersistentMusicSettings(activity: Activity) {
     private val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
-        /* strings for sharedPref */
-        private val numeratorString = "numerator"
-        private val denominatorString = "denominator"
-        private val bpmString = "bpm"
+
+    /* strings for sharedPref */
+    private val numeratorString = "numerator"
+    private val denominatorString = "denominator"
+    private val bpmString = "bpm"
 
     /* backing fields */
-    private var _numerator: Int by mutableStateOf(sharedPref.getInt(numeratorString,4))
+    private var _numerator: Int by mutableStateOf(sharedPref.getInt(numeratorString, 4))
     private var _denominator: Int by mutableStateOf(sharedPref.getInt(denominatorString, 4))
     private var _bpm: Int by mutableStateOf(sharedPref.getInt(bpmString, 4))
 
@@ -72,9 +70,9 @@ class PersistentMusicSettings(activity: Activity) {
     var denominator: Int
         get() = _denominator
         set(value) {
-        sharedPref.edit().putInt(denominatorString,value).apply()
-        _denominator = value
-    }
+            sharedPref.edit().putInt(denominatorString, value).apply()
+            _denominator = value
+        }
 
     var bpm: Int
         get() = _bpm
@@ -87,7 +85,6 @@ class PersistentMusicSettings(activity: Activity) {
 /**
  * Ideally this will just be a bunch of constants functions can use to not bloat parameter lists.
  */
-@Parcelize
 data class ScreenSettings(
     val cornerRounding: @RawValue Dp = 10.dp, //for rounded shapes
     /* padding */
@@ -97,10 +94,10 @@ data class ScreenSettings(
     /* margins */
     val containerMargins: @RawValue Dp = 20.dp,
     /* container heights */
-    val scrollHeight: @RawValue Dp = 100.dp,
-    val buttonHeight: @RawValue Dp = 80.dp,
-    val settingsHeight: @RawValue Dp = 400.dp
-) : Parcelable
+    val scrollContainerHeight: @RawValue Dp = 100.dp,
+    val buttonContainerHeight: @RawValue Dp = 80.dp,
+    val settingsContainerHeight: @RawValue Dp = 400.dp
+)
 
 @Composable
 fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
@@ -114,13 +111,14 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
     BpmText(
         modifier = Modifier
             .wrapContentSize()
-            .layoutId("bpmText")
+            .layoutId("bpmText"),
+        bpm = settings.bpm
     )
 
     //Music staff container
     ScrollableStaffContents(
         modifier = Modifier
-            .containerModifier(ScreenSettings().scrollHeight)
+            .containerModifier(ScreenSettings().scrollContainerHeight)
             .layoutId("scrollBox"),
         settings = settings
     )
@@ -128,7 +126,7 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
     //Button container
     ButtonContents(
         modifier = Modifier
-            .containerModifier(ScreenSettings().buttonHeight)
+            .containerModifier(ScreenSettings().buttonContainerHeight)
             .layoutId("buttonBox"),
         settings = settings
     )
@@ -136,7 +134,7 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
     //settings container
     PagerContainer(
         modifier = Modifier
-            .containerModifier(ScreenSettings().settingsHeight)
+            .containerModifier(ScreenSettings().settingsContainerHeight)
             .layoutId("settingsBox"),
         { Text("Test") },
         { Text("Test2") },
@@ -233,17 +231,47 @@ fun ScrollableStaffContents(modifier: Modifier = Modifier, settings: PersistentM
 }
 
 @Composable
-fun ButtonContents(modifier: Modifier = Modifier, settings: PersistentMusicSettings) {
-    Box(
-        modifier = modifier
+fun ButtonContents(modifier: Modifier = Modifier, settings: PersistentMusicSettings) =
+    Row(
+        modifier = modifier.padding(5.dp),
+        horizontalArrangement = Arrangement.Center
     ) {
-        Button(onClick = {
-            settings.numerator += 1
-        }) {
-
-        }
+        val buttonSize = 50.dp
+        fun buttonModifier(size: Dp) = Modifier
+            .align(Alignment.CenterVertically)
+            .padding(ScreenSettings().innerPadding / 2) //since these objects are right next to eachother it would be 20 otherwise
+            .size(size)
+        MusicButton(
+            modifier = buttonModifier(buttonSize),
+            onClick = {
+                settings.bpm -= 4
+            }, contents = {}
+        )
+        MusicButton(
+            modifier = buttonModifier(buttonSize),
+            onClick = {
+                settings.bpm -= 1
+            }, contents = {}
+        )
+        MusicButton(
+            modifier = buttonModifier(buttonSize * 1.2f),
+            onClick = {
+                settings.numerator -= 0
+            }, contents = {}
+        )
+        MusicButton(
+            modifier = buttonModifier(buttonSize),
+            onClick = {
+                settings.bpm += 1
+            }, contents = {}
+        )
+        MusicButton(
+            modifier = buttonModifier(buttonSize),
+            onClick = {
+                settings.bpm += 4
+            }, contents = {}
+        )
     }
-}
 
 /**
  * ToDo

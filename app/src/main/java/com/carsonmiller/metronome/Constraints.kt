@@ -29,6 +29,7 @@ fun containerConstraints() =
 
         constrain(buttonBox) {
             centerVerticallyTo(parent, .35f)
+            centerHorizontallyTo(parent, .5f)
         }
 
         constrain(settingsBox) {
