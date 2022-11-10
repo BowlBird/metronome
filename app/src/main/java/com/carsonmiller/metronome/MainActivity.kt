@@ -5,31 +5,18 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.carsonmiller.metronome.components.*
 import com.carsonmiller.metronome.ui.theme.MetronomeTheme
-import com.carsonmiller.metronome.ui.theme.musicFont
-import com.carsonmiller.metronome.ui.theme.typography
 import kotlinx.parcelize.RawValue
 
 
@@ -37,7 +24,6 @@ class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            //val settings: MusicSettingsViewModel by viewModels()
             val settings = PersistentMusicSettings(this)
             MetronomeTheme { MainLayout(settings) }
         }
@@ -108,7 +94,7 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
 )
 {
     //text for bpm
-    BpmText(
+    BpmTextBody(
         modifier = Modifier
             .wrapContentSize()
             .layoutId("bpmText"),
@@ -116,19 +102,20 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
     )
 
     //Music staff container
-    ScrollableStaffContents(
+    HeaderBody(
         modifier = Modifier
             .containerModifier(ScreenSettings().scrollContainerHeight)
             .layoutId("scrollBox"),
-        settings = settings
+        numerator = settings.numerator,
+        denominator = settings.denominator
     )
 
     //Button container
-    ButtonContents(
+    ButtonBody(
         modifier = Modifier
             .containerModifier(ScreenSettings().buttonContainerHeight)
             .layoutId("buttonBox"),
-        settings = settings
+        settings = settings //only pass in settings when state is being changed.
     )
 
     //settings container
@@ -140,219 +127,4 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
         { Text("Test2") },
         { Text("Test3") }
     )
-}
-
-/**
- * Text that shows current bpm
- */
-@Composable
-fun BpmText(modifier: Modifier = Modifier, bpm: Int = 100) {
-    ConstraintLayout(
-        textConstraints(),
-        modifier = modifier
-    ) {
-        //number
-        Text(
-            modifier = Modifier.layoutId("num"),
-            text = "$bpm",
-            color = colorScheme.onBackground,
-            style = typography.labelLarge
-        )
-
-        //bpm text
-        Text(
-            modifier = Modifier.layoutId("bpmText"),
-            text = "bpm",
-            color = colorScheme.secondary,
-            style = typography.labelLarge,
-            fontStyle = FontStyle.Italic
-        )
-    }
-}
-
-@Composable
-fun ScrollableStaffContents(modifier: Modifier = Modifier, settings: PersistentMusicSettings) {
-
-    //box to hold everything in one container
-    Box(modifier = modifier) {
-        //time signature container
-        Box(
-            modifier = Modifier
-                .padding(ScreenSettings().innerPadding)
-                .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
-                .background(color = colorScheme.inversePrimary)
-                .fillMaxHeight()
-                .width(55.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            TimeSignature(
-                modifier = Modifier,
-                settings.numerator,
-                settings.denominator
-            )
-        }
-
-        //Notes and Music Bar Holder
-        Box(
-            modifier = Modifier
-                .padding(
-                    75.dp,
-                    ScreenSettings().innerPadding,
-                    ScreenSettings().innerPadding,
-                    ScreenSettings().innerPadding
-                )
-                .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
-                .background(color = colorScheme.inversePrimary)
-                .fillMaxHeight()
-                .fillMaxWidth()
-        ) {
-
-            //music bar (doesn't actually move)
-            MusicBar(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .offset(y = 20.dp),
-                4f
-            )
-
-            //row
-            HorizontalScrollContainer {
-                repeat(100) {
-                    Note(
-                        modifier = Modifier
-                            .height(55.dp)
-                            .offset(y = 12.dp),
-                        note = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ButtonContents(modifier: Modifier = Modifier, settings: PersistentMusicSettings) =
-    Row(
-        modifier = modifier.padding(5.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        val buttonSize = 50.dp
-        fun buttonModifier(size: Dp) = Modifier
-            .align(Alignment.CenterVertically)
-            .padding(ScreenSettings().innerPadding / 2) //since these objects are right next to eachother it would be 20 otherwise
-            .size(size)
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm -= 4
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm -= 1
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize * 1.2f),
-            onClick = {
-                settings.numerator -= 0
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm += 1
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm += 4
-            }, contents = {}
-        )
-    }
-
-/**
- * ToDo
- */
-@Composable
-fun Note(modifier: Modifier = Modifier, note: Int) {
-    Image(
-        painterResource(id = note),
-        modifier = modifier
-            .scale(1.004f)
-            .wrapContentSize(),
-        contentDescription = "Note",
-        colorFilter = ColorFilter.tint(color = colorScheme.onBackground)
-    )
-}
-
-/**
- * the music bar (basically just an image with controllable x scale)
- */
-@Composable
-fun MusicBar(modifier: Modifier = Modifier, scale: Float) {
-    Image(
-        painterResource(id = R.drawable.ic_music_staff),
-        modifier = modifier
-            .scale(scale, 1f),
-        contentDescription = "Music Staff",
-        colorFilter = ColorFilter.tint(color = colorScheme.onBackground)
-    )
-}
-
-/**
- * Time signature with controllable numerator and denominator
- */
-@Composable
-fun TimeSignature(
-    modifier: Modifier = Modifier,
-    numerator: Int = 4,
-    denominator: Int = 4,
-    fontSize: Int = 70,
-    color: Color = colorScheme.onBackground
-) {
-    /**
-     * Inner time signature number that is just a wrapper for text
-     */
-    @Composable
-    fun TimeSignatureNumber(
-        modifier: Modifier = Modifier,
-        value: Int,
-        fontSize: TextUnit,
-        color: Color
-    ) {
-        require(value > 0) //will throw an exception since time signatures can't be negative or 0
-        Text(
-            text = value.toString(),
-            modifier = modifier,
-            fontFamily = musicFont,
-            fontSize = fontSize,
-            color = color
-        )
-    }
-
-    val spFontSize = with(LocalDensity.current) { //determines the size based on fontSize variable.
-        (fontSize / fontScale).sp
-    }
-
-    ConstraintLayout(
-        bpmConstraints(),
-        modifier = modifier
-            .wrapContentSize()
-    )
-    {
-        TimeSignatureNumber(
-            modifier = Modifier.layoutId("topText"),
-            value = numerator,
-            fontSize = spFontSize,
-            color = color
-        ) //numerator
-        TimeSignatureNumber(
-            modifier = Modifier.layoutId("bottomText"),
-            value = denominator, fontSize = spFontSize,
-            color = color
-        ) //denominator
-    }
 }

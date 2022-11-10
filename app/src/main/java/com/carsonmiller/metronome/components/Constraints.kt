@@ -1,7 +1,8 @@
-package com.carsonmiller.metronome
+package com.carsonmiller.metronome.components
 
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintSet
+import com.carsonmiller.metronome.ScreenSettings
 
 
 fun containerConstraints() =
