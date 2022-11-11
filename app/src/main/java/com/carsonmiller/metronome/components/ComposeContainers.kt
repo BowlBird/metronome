@@ -1,7 +1,13 @@
 package com.carsonmiller.metronome.components
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -10,16 +16,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.carsonmiller.metronome.ScreenSettings
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.*
 
 /**
  * A container that pages
@@ -28,27 +40,68 @@ import com.google.accompanist.pager.rememberPagerState
 @Composable
 fun PagerContainer(modifier: Modifier = Modifier, vararg page: @Composable () -> Unit) =
     HorizontalPager(
-        modifier = modifier,
-        count = page.size,
-        state = rememberPagerState()
+        modifier = modifier, count = page.size, state = rememberPagerState()
     ) {
         page[it].invoke()
     }
 
 @Composable
 fun HorizontalScrollContainer(modifier: Modifier = Modifier, contents: @Composable () -> Unit) =
-    Row(modifier = modifier.horizontalScroll(rememberScrollState())) {contents()}
+    Row(modifier = modifier.horizontalScroll(rememberScrollState())) { contents() }
 
 @Composable
-fun MusicButton(modifier: Modifier = Modifier, contents: @Composable RowScope.() -> Unit, onClick: () -> Unit) =
+fun MusicButton(
+    modifier: Modifier = Modifier,
+    contents: @Composable () -> Unit,
+    isHoldable: Boolean = false,
+    onClick: () -> Unit
+) {
+    val interaction = remember { MutableInteractionSource() }
     Button(
         modifier = modifier,
-        content = contents,
-        onClick = onClick,
+        onClick = {},
         shape = CircleShape,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inversePrimary,
-                                             contentColor = MaterialTheme.colorScheme.primary)
-    )
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
+        interactionSource = interaction
+    ) {
+        val delayUntilHold = 1000L //1 second
+        val delay = 100L
+        /** gets if it is being held */
+        LaunchedEffect(interaction) {
+            var doButtonAction: Job? = null
+            var isHeld = false
+
+            interaction.interactions.collect {
+                when (it) {
+                    is PressInteraction.Press ->
+                        if (isHoldable) {
+                            doButtonAction = launch {
+                                isHeld = false
+                                delay(delayUntilHold)
+                                while (true) {
+                                    isHeld = true
+                                    onClick()
+                                    delay(delay)
+                                }
+                            }
+                        }
+                    is PressInteraction.Release -> {
+                        doButtonAction?.cancel()
+                        if (!isHeld) onClick()
+                    }
+                    is PressInteraction.Cancel -> {
+                        doButtonAction?.cancel()
+                        if (!isHeld) onClick()
+                    }
+                }
+
+            }
+        }
+
+        contents()
+    }
+}
+
 /**
  * extension factory function for containers
  */

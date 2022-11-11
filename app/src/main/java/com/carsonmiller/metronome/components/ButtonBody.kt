@@ -13,44 +13,27 @@ import com.carsonmiller.metronome.PersistentMusicSettings
 import com.carsonmiller.metronome.ScreenSettings
 
 @Composable
-fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSettings) =
-    Row(
-        modifier = modifier.padding(5.dp),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        val buttonSize = 50.dp
-        fun buttonModifier(size: Dp) = Modifier
-            .align(Alignment.CenterVertically)
-            .padding(ScreenSettings().innerPadding / 2) //since these objects are right next to each other it would be 20 otherwise
-            .size(size)
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm -= 4
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm -= 1
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize * 1.2f),
-            onClick = {
-                settings.numerator -= 0
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm += 1
-            }, contents = {}
-        )
-        MusicButton(
-            modifier = buttonModifier(buttonSize),
-            onClick = {
-                settings.bpm += 4
-            }, contents = {}
-        )
-    }
+fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSettings) = Row(
+    modifier = modifier.padding(5.dp), horizontalArrangement = Arrangement.Center
+) {
+    val buttonSize = 50.dp
+    fun buttonModifier(size: Dp) = Modifier
+        .align(Alignment.CenterVertically)
+        .padding(ScreenSettings().innerPadding / 2) //since these objects are right next to each other it would be 20 otherwise
+        .size(size)
+    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
+        settings.bpm -= 4
+    }, contents = {}, isHoldable = true)
+    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
+        settings.bpm -= 1
+    }, contents = {},isHoldable = true)
+    MusicButton(modifier = buttonModifier(buttonSize * 1.2f), onClick = {
+        settings.numerator -= 0
+    }, contents = {},isHoldable = false)
+    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
+        settings.bpm += 1
+    }, contents = {},isHoldable = true)
+    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
+        settings.bpm += 4
+    }, contents = {},isHoldable = true)
+}

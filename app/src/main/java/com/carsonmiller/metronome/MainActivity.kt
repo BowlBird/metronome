@@ -44,7 +44,7 @@ class PersistentMusicSettings(activity: Activity) {
     /* backing fields */
     private var _numerator: Int by mutableStateOf(sharedPref.getInt(numeratorString, 4))
     private var _denominator: Int by mutableStateOf(sharedPref.getInt(denominatorString, 4))
-    private var _bpm: Int by mutableStateOf(sharedPref.getInt(bpmString, 4))
+    private var _bpm: Int by mutableStateOf(sharedPref.getInt(bpmString, 100))
 
     var numerator: Int
         get() = _numerator
