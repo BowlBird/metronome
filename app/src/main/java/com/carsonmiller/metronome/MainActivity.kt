@@ -49,23 +49,37 @@ class PersistentMusicSettings(activity: Activity) {
     var numerator: Int
         get() = _numerator
         set(value) {
-            sharedPref.edit().putInt(numeratorString, value).apply()
-            _numerator = value
+            _numerator = when {
+                value < 1 -> put(numeratorString, 1)
+                value > 999 -> put(numeratorString, 999)
+                else -> put(numeratorString, value)
+            }
         }
 
     var denominator: Int
         get() = _denominator
         set(value) {
-            sharedPref.edit().putInt(denominatorString, value).apply()
-            _denominator = value
+            _denominator = when {
+                value < 1 -> put(denominatorString, 1)
+                value > 999 -> put(denominatorString, 999)
+                else -> put(denominatorString, value)
+            }
         }
 
     var bpm: Int
         get() = _bpm
         set(value) {
-            sharedPref.edit().putInt(bpmString, value).apply()
-            _bpm = value
+            _bpm = when {
+                value < 1 -> put(bpmString, 1)
+                value > 999 -> put(bpmString, 999)
+                else -> put(bpmString, value)
+            }
         }
+
+    private fun put(string: String, value: Int): Int {
+        sharedPref.edit().putInt(string, value).apply()
+        return value
+    }
 }
 
 /**

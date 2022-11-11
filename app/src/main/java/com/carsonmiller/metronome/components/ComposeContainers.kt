@@ -57,7 +57,7 @@ fun MusicButton(
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
         interactionSource = interaction
     ) {
-        val delayUntilHold = 1000L //1 second
+        val delayUntilHold = 500L
         val delay = 100L
         /** gets if it is being held */
         LaunchedEffect(interaction) {
