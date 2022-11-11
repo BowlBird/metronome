@@ -35,13 +35,10 @@ fun HeaderBody(modifier: Modifier = Modifier, numerator: Int, denominator: Int) 
                 .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
                 .background(color = MaterialTheme.colorScheme.inversePrimary)
                 .fillMaxHeight()
-                .width(55.dp),
-            contentAlignment = Alignment.Center
+                .width(55.dp), contentAlignment = Alignment.Center
         ) {
             TimeSignature(
-                modifier = Modifier,
-                numerator,
-                denominator
+                modifier = Modifier, numerator, denominator
             )
         }
 
@@ -64,8 +61,7 @@ fun HeaderBody(modifier: Modifier = Modifier, numerator: Int, denominator: Int) 
             MusicBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .offset(y = 20.dp),
-                4f
+                    .offset(y = 20.dp), 4f
             )
 
             //row
@@ -105,8 +101,7 @@ fun Note(modifier: Modifier = Modifier, note: Int) {
 fun MusicBar(modifier: Modifier = Modifier, scale: Float) {
     Image(
         painterResource(id = R.drawable.ic_music_staff),
-        modifier = modifier
-            .scale(scale, 1f),
+        modifier = modifier.scale(scale, 1f),
         contentDescription = "Music Staff",
         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
     )
@@ -128,10 +123,7 @@ fun TimeSignature(
      */
     @Composable
     fun TimeSignatureNumber(
-        modifier: Modifier = Modifier,
-        value: Int,
-        fontSize: TextUnit,
-        color: Color
+        modifier: Modifier = Modifier, value: Int, fontSize: TextUnit, color: Color
     ) {
         require(value > 0) //will throw an exception since time signatures can't be negative or 0
         Text(
@@ -148,11 +140,8 @@ fun TimeSignature(
     }
 
     ConstraintLayout(
-        bpmConstraints(),
-        modifier = modifier
-            .wrapContentSize()
-    )
-    {
+        bpmConstraints(), modifier = modifier.wrapContentSize()
+    ) {
         TimeSignatureNumber(
             modifier = Modifier.layoutId("topText"),
             value = numerator,
@@ -161,7 +150,8 @@ fun TimeSignature(
         ) //numerator
         TimeSignatureNumber(
             modifier = Modifier.layoutId("bottomText"),
-            value = denominator, fontSize = spFontSize,
+            value = denominator,
+            fontSize = spFontSize,
             color = color
         ) //denominator
     }

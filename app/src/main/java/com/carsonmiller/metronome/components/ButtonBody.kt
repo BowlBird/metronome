@@ -26,14 +26,14 @@ fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSettings)
     }, contents = {}, isHoldable = true)
     MusicButton(modifier = buttonModifier(buttonSize), onClick = {
         settings.bpm -= 1
-    }, contents = {},isHoldable = true)
+    }, contents = {}, isHoldable = true)
     MusicButton(modifier = buttonModifier(buttonSize * 1.2f), onClick = {
         settings.numerator -= 0
-    }, contents = {},isHoldable = false)
+    }, contents = {}, isHoldable = false)
     MusicButton(modifier = buttonModifier(buttonSize), onClick = {
         settings.bpm += 1
-    }, contents = {},isHoldable = true)
+    }, contents = {}, isHoldable = true)
     MusicButton(modifier = buttonModifier(buttonSize), onClick = {
         settings.bpm += 4
-    }, contents = {},isHoldable = true)
+    }, contents = {}, isHoldable = true)
 }

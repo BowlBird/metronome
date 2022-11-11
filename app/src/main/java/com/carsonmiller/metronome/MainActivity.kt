@@ -91,14 +91,12 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
     modifier = Modifier
         .fillMaxSize()
         .background(color = colorScheme.background)
-)
-{
+) {
     //text for bpm
     BpmTextBody(
         modifier = Modifier
             .wrapContentSize()
-            .layoutId("bpmText"),
-        bpm = settings.bpm
+            .layoutId("bpmText"), bpm = settings.bpm
     )
 
     //Music staff container
@@ -119,12 +117,7 @@ fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
     )
 
     //settings container
-    PagerContainer(
-        modifier = Modifier
-            .containerModifier(ScreenSettings().settingsContainerHeight)
-            .layoutId("settingsBox"),
-        { Text("Test") },
-        { Text("Test2") },
-        { Text("Test3") }
-    )
+    PagerContainer(modifier = Modifier
+        .containerModifier(ScreenSettings().settingsContainerHeight)
+        .layoutId("settingsBox"), { Text("Test") }, { Text("Test2") }, { Text("Test3") })
 }

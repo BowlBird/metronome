@@ -15,8 +15,7 @@ import com.carsonmiller.metronome.ui.theme.typography
 @Composable
 fun BpmTextBody(modifier: Modifier = Modifier, bpm: Int = 100) {
     ConstraintLayout(
-        textConstraints(),
-        modifier = modifier
+        textConstraints(), modifier = modifier
     ) {
         //number
         Text(
