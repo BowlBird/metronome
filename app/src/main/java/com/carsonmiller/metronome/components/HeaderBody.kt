@@ -1,13 +1,13 @@
 package com.carsonmiller.metronome.components
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -24,33 +24,81 @@ import com.carsonmiller.metronome.*
 import com.carsonmiller.metronome.R
 import com.carsonmiller.metronome.ui.theme.musicFont
 
+
 @Composable
-fun HeaderBody(modifier: Modifier = Modifier, numerator: Int, denominator: Int) =
-    //box to hold everything in one container
+fun HeaderBody(
+    modifier: Modifier = Modifier,
+    numerator: Int,
+    denominator: Int,
+    appSettings: PersistentAppState,
+    musicSettings: PersistentMusicSettings
+) {
+    val timeSignatureContainerWidth = 80.dp
+    val expandedSize = 75.dp
+    val usedWidth =
+        timeSignatureContainerWidth + if (appSettings.timeSignatureExpanded) expandedSize else 0.dp
+
     Box(modifier = modifier) {
-        //time signature container
-        Box(
+        //holds and contains logic for time signature
+        ConstraintLayout(
+            timeSignatureContainerConstraint(),
             modifier = Modifier
                 .padding(ScreenSettings().innerPadding)
                 .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
                 .background(color = MaterialTheme.colorScheme.inversePrimary)
                 .fillMaxHeight()
-                .width(55.dp), contentAlignment = Alignment.Center
+                .width(usedWidth)
+                .clickable {
+                    appSettings.timeSignatureExpanded = !appSettings.timeSignatureExpanded
+                }
+                .animateContentSize(),
         ) {
+            if (appSettings.timeSignatureExpanded) {
+                val buttonColor =
+                    ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+
+                @Composable
+                fun SmallButton(
+                    layoutId: String,
+                    contents: @Composable () -> Unit,
+                    onClick: () -> Unit
+                ) =
+                    MusicButton(
+                        modifier = Modifier
+                            .size(ScreenSettings().smallButtonContainerHeight)
+                            .layoutId(layoutId),
+                        isHoldable = true,
+                        contents = contents,
+                        onClick = onClick,
+                        colors = buttonColor
+                    )
+                SmallButton("topLeft", onClick = { musicSettings.numerator -= 1 }, contents = {})
+                SmallButton("topRight", onClick = { musicSettings.numerator += 1 }, contents = {})
+                SmallButton(
+                    "bottomLeft",
+                    onClick = { musicSettings.denominator /= 2 },
+                    contents = {})
+                SmallButton(
+                    "bottomRight",
+                    onClick = { musicSettings.denominator *= 2 },
+                    contents = {})
+            }
             TimeSignature(
-                modifier = Modifier, numerator, denominator
+                modifier = Modifier.layoutId("timeSignature"), numerator, denominator
             )
+
         }
 
         //Notes and Music Bar Holder
         Box(
             modifier = Modifier
                 .padding(
-                    75.dp,
+                    ScreenSettings().innerPadding * 2 + usedWidth,
                     ScreenSettings().innerPadding,
                     ScreenSettings().innerPadding,
                     ScreenSettings().innerPadding
                 )
+                //.animateContentSize(animationSpec = TweenSpec())
                 .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
                 .background(color = MaterialTheme.colorScheme.inversePrimary)
                 .fillMaxHeight()
@@ -77,7 +125,7 @@ fun HeaderBody(modifier: Modifier = Modifier, numerator: Int, denominator: Int) 
             }
         }
     }
-
+}
 
 /**
  * ToDo
@@ -140,7 +188,7 @@ fun TimeSignature(
     }
 
     ConstraintLayout(
-        bpmConstraints(), modifier = modifier.wrapContentSize()
+        timeSignatureConstraint(fontSize), modifier = modifier.wrapContentSize()
     ) {
         TimeSignatureNumber(
             modifier = Modifier.layoutId("topText"),

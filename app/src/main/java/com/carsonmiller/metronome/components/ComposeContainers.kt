@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -47,14 +48,15 @@ fun MusicButton(
     modifier: Modifier = Modifier,
     contents: @Composable () -> Unit,
     isHoldable: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    colors: ButtonColors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inversePrimary)
 ) {
     val interaction = remember { MutableInteractionSource() }
     Button(
         modifier = modifier,
         onClick = {},
         shape = CircleShape,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.inversePrimary),
+        colors = colors,
         interactionSource = interaction
     ) {
         val delayUntilHold = 500L

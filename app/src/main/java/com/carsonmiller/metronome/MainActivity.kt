@@ -2,6 +2,7 @@ package com.carsonmiller.metronome
 
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -17,25 +18,40 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.carsonmiller.metronome.components.*
 import com.carsonmiller.metronome.ui.theme.MetronomeTheme
-import kotlinx.parcelize.RawValue
 
 
 class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val settings = PersistentMusicSettings(this)
-            MetronomeTheme { MainLayout(settings) }
+            val musicSettings = PersistentMusicSettings(this)
+            val appSettings = PersistentAppState(this)
+            MetronomeTheme {
+                MainLayout(
+                    musicSettings = musicSettings,
+                    appSettings = appSettings
+                )
+            }
         }
+    }
+}
+
+/**
+ * abstract class for extending
+ */
+abstract class PersistentSettings(activity: Activity) {
+    protected val sharedPref: SharedPreferences = activity.getPreferences(Context.MODE_PRIVATE)
+
+    protected fun put(string: String, value: Int): Int {
+        sharedPref.edit().putInt(string, value).apply()
+        return value
     }
 }
 
 /**
  * holder for settings
  */
-class PersistentMusicSettings(activity: Activity) {
-    private val sharedPref = activity.getPreferences(Context.MODE_PRIVATE)
-
+class PersistentMusicSettings(activity: Activity) : PersistentSettings(activity) {
     /* strings for sharedPref */
     private val numeratorString = "numerator"
     private val denominatorString = "denominator"
@@ -61,7 +77,7 @@ class PersistentMusicSettings(activity: Activity) {
         set(value) {
             _denominator = when {
                 value < 1 -> put(denominatorString, 1)
-                value > 999 -> put(denominatorString, 999)
+                value > 64 -> put(denominatorString, 64)
                 else -> put(denominatorString, value)
             }
         }
@@ -75,63 +91,84 @@ class PersistentMusicSettings(activity: Activity) {
                 else -> put(bpmString, value)
             }
         }
-
-    private fun put(string: String, value: Int): Int {
-        sharedPref.edit().putInt(string, value).apply()
-        return value
-    }
 }
 
 /**
  * Ideally this will just be a bunch of constants functions can use to not bloat parameter lists.
  */
 data class ScreenSettings(
-    val cornerRounding: @RawValue Dp = 10.dp, //for rounded shapes
+    val cornerRounding: Dp = 10.dp, //for rounded shapes
     /* padding */
-    val containerSidePadding: @RawValue Dp = 32.dp,
-    val containerHeightPadding: @RawValue Dp = 0.dp,
-    val innerPadding: @RawValue Dp = 10.dp, //for inside containers
+    val containerSidePadding: Dp = 32.dp,
+    val containerHeightPadding: Dp = 0.dp,
+    val innerPadding: Dp = 10.dp, //for inside containers
     /* margins */
-    val containerMargins: @RawValue Dp = 20.dp,
+    val containerMargins: Dp = 20.dp,
     /* container heights */
-    val scrollContainerHeight: @RawValue Dp = 100.dp,
-    val buttonContainerHeight: @RawValue Dp = 80.dp,
-    val settingsContainerHeight: @RawValue Dp = 400.dp
+    val scrollContainerHeight: Dp = 100.dp,
+    val buttonContainerHeight: Dp = 80.dp,
+    val smallButtonContainerHeight: Dp = 25.dp,
+    val settingsContainerHeight: Dp = 400.dp
 )
 
-@Composable
-fun MainLayout(settings: PersistentMusicSettings) = ConstraintLayout(
-    containerConstraints(),
-    modifier = Modifier
-        .fillMaxSize()
-        .background(color = colorScheme.background)
-) {
-    //text for bpm
-    BpmTextBody(
-        modifier = Modifier
-            .wrapContentSize()
-            .layoutId("bpmText"), bpm = settings.bpm
+/**
+ * holds certain states of the app
+ */
+class PersistentAppState(activity: Activity) : PersistentSettings(activity) {
+    /* strings for sharedPref */
+    private val timeSignaturePopupString = "timeSignaturePopup"
+
+    /* backing fields */
+    private var _timeSignaturePopup: Boolean by mutableStateOf(
+        sharedPref.getBoolean(
+            timeSignaturePopupString,
+            false
+        )
     )
 
-    //Music staff container
-    HeaderBody(
-        modifier = Modifier
-            .containerModifier(ScreenSettings().scrollContainerHeight)
-            .layoutId("scrollBox"),
-        numerator = settings.numerator,
-        denominator = settings.denominator
-    )
-
-    //Button container
-    ButtonBody(
-        modifier = Modifier
-            .containerModifier(ScreenSettings().buttonContainerHeight)
-            .layoutId("buttonBox"),
-        settings = settings //only pass in settings when state is being changed.
-    )
-
-    //settings container
-    PagerContainer(modifier = Modifier
-        .containerModifier(ScreenSettings().settingsContainerHeight)
-        .layoutId("settingsBox"), { Text("Test") }, { Text("Test2") }, { Text("Test3") })
+    var timeSignatureExpanded: Boolean
+        get() = _timeSignaturePopup
+        set(value) {
+            _timeSignaturePopup = value
+        }
 }
+
+@Composable
+fun MainLayout(musicSettings: PersistentMusicSettings, appSettings: PersistentAppState) =
+    ConstraintLayout(
+        containerConstraints(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = colorScheme.background)
+    ) {
+        //text for bpm
+        BpmTextBody(
+            modifier = Modifier
+                .wrapContentSize()
+                .layoutId("bpmText"), bpm = musicSettings.bpm
+        )
+
+        //Music staff container
+        HeaderBody(
+            modifier = Modifier
+                .containerModifier(ScreenSettings().scrollContainerHeight)
+                .layoutId("scrollBox"),
+            numerator = musicSettings.numerator,
+            denominator = musicSettings.denominator,
+            appSettings = appSettings,
+            musicSettings = musicSettings
+        )
+
+        //Button container
+        ButtonBody(
+            modifier = Modifier
+                .containerModifier(ScreenSettings().buttonContainerHeight)
+                .layoutId("buttonBox"),
+            settings = musicSettings //only pass in settings when state is being changed.
+        )
+
+        //settings container
+        PagerContainer(modifier = Modifier
+            .containerModifier(ScreenSettings().settingsContainerHeight)
+            .layoutId("settingsBox"), { Text("Test") }, { Text("Test2") }, { Text("Test3") })
+    }
