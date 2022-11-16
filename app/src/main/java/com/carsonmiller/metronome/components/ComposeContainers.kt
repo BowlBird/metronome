@@ -1,5 +1,6 @@
 package com.carsonmiller.metronome.components
 
+import com.carsonmiller.metronome.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -91,7 +92,6 @@ fun MusicButton(
 
             }
         }
-
         contents()
     }
 }
@@ -100,11 +100,10 @@ fun MusicButton(
  * extension factory function for containers
  */
 fun Modifier.containerModifier(height: Dp = 0.dp) = composed {
-    val screenSettings = ScreenSettings()
     this
         .wrapContentWidth(Alignment.CenterHorizontally)
         .height(height)
-        .padding(screenSettings.containerSidePadding, screenSettings.containerHeightPadding)
-        .clip(RoundedCornerShape(screenSettings.cornerRounding))
+        .padding(ScreenSettings.containerSidePadding, ScreenSettings.containerHeightPadding)
+        .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
         .background(color = MaterialTheme.colorScheme.primaryContainer)
 }

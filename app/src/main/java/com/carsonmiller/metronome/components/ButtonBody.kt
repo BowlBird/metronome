@@ -19,7 +19,7 @@ fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSettings)
     val buttonSize = 50.dp
     fun buttonModifier(size: Dp) = Modifier
         .align(Alignment.CenterVertically)
-        .padding(ScreenSettings().innerPadding / 2) //since these objects are right next to each other it would be 20 otherwise
+        .padding(ScreenSettings.innerPadding / 2) //since these objects are right next to each other it would be 20 otherwise
         .size(size)
     MusicButton(modifier = buttonModifier(buttonSize), onClick = {
         settings.bpm = getRoundedMetronomeBPM(settings.bpm, false)

@@ -30,7 +30,7 @@ fun HeaderBody(
     modifier: Modifier = Modifier,
     numerator: Int,
     denominator: Int,
-    appSettings: PersistentAppState,
+    appSettings: PersistentAppSettings,
     musicSettings: PersistentMusicSettings
 ) {
     val timeSignatureContainerWidth = 80.dp
@@ -43,8 +43,8 @@ fun HeaderBody(
         ConstraintLayout(
             timeSignatureContainerConstraint(),
             modifier = Modifier
-                .padding(ScreenSettings().innerPadding)
-                .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
+                .padding(ScreenSettings.innerPadding)
+                .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
                 .background(color = MaterialTheme.colorScheme.inversePrimary)
                 .fillMaxHeight()
                 .width(usedWidth)
@@ -59,27 +59,22 @@ fun HeaderBody(
 
                 @Composable
                 fun SmallButton(
-                    layoutId: String,
-                    contents: @Composable () -> Unit,
-                    onClick: () -> Unit
-                ) =
-                    MusicButton(
-                        modifier = Modifier
-                            .size(ScreenSettings().smallButtonContainerHeight)
-                            .layoutId(layoutId),
-                        isHoldable = true,
-                        contents = contents,
-                        onClick = onClick,
-                        colors = buttonColor
-                    )
+                    layoutId: String, contents: @Composable () -> Unit, onClick: () -> Unit
+                ) = MusicButton(
+                    modifier = Modifier
+                        .size(ScreenSettings.smallButtonContainerHeight)
+                        .layoutId(layoutId),
+                    isHoldable = true,
+                    contents = contents,
+                    onClick = onClick,
+                    colors = buttonColor
+                )
                 SmallButton("topLeft", onClick = { musicSettings.numerator -= 1 }, contents = {})
                 SmallButton("topRight", onClick = { musicSettings.numerator += 1 }, contents = {})
-                SmallButton(
-                    "bottomLeft",
+                SmallButton("bottomLeft",
                     onClick = { musicSettings.denominator /= 2 },
                     contents = {})
-                SmallButton(
-                    "bottomRight",
+                SmallButton("bottomRight",
                     onClick = { musicSettings.denominator *= 2 },
                     contents = {})
             }
@@ -93,13 +88,13 @@ fun HeaderBody(
         Box(
             modifier = Modifier
                 .padding(
-                    ScreenSettings().innerPadding * 2 + usedWidth,
-                    ScreenSettings().innerPadding,
-                    ScreenSettings().innerPadding,
-                    ScreenSettings().innerPadding
+                    ScreenSettings.innerPadding * 2 + usedWidth,
+                    ScreenSettings.innerPadding,
+                    ScreenSettings.innerPadding,
+                    ScreenSettings.innerPadding
                 )
                 //.animateContentSize(animationSpec = TweenSpec())
-                .clip(RoundedCornerShape(ScreenSettings().cornerRounding))
+                .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
                 .background(color = MaterialTheme.colorScheme.inversePrimary)
                 .fillMaxHeight()
                 .fillMaxWidth()

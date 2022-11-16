@@ -15,15 +15,15 @@ fun containerConstraints() = ConstraintSet {
 
     constrain(bpmText) {
         end.linkTo(
-            parent.end, margin = ScreenSettings().containerSidePadding * 2
+            parent.end, margin = ScreenSettings.containerSidePadding * 2
         ) //*2 for some contrast
         bottom.linkTo(
-            scrollBox.top, margin = ScreenSettings().containerMargins / 2 // / 2 to make it closer
+            scrollBox.top, margin = ScreenSettings.containerMargins / 2 // / 2 to make it closer
         )
     }
 
     constrain(scrollBox) {
-        bottom.linkTo(buttonBox.top, margin = ScreenSettings().containerMargins)
+        bottom.linkTo(buttonBox.top, margin = ScreenSettings.containerMargins)
     }
 
     constrain(buttonBox) {
@@ -32,7 +32,7 @@ fun containerConstraints() = ConstraintSet {
     }
 
     constrain(settingsBox) {
-        top.linkTo(buttonBox.bottom, margin = ScreenSettings().containerMargins)
+        top.linkTo(buttonBox.bottom, margin = ScreenSettings.containerMargins)
     }
 
     constrain(timeSignaturePopup) {
