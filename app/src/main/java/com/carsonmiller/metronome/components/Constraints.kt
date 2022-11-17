@@ -69,7 +69,7 @@ fun timeSignatureConstraint(fontSize: Int) = ConstraintSet {
 }
 
 fun motionTimeSignatureConstraint(expanded: Boolean) : ConstraintSet {
-    val verticalPadding = if(expanded) ScreenSettings.innerPadding.value else -30
+    val verticalPadding = if(expanded) ScreenSettings.innerPadding.value else -100
     val horizontalPadding = if(expanded) ScreenSettings.innerPadding.value else 0
     return ConstraintSet( JSONObject()
         .put("timeSignature", JSONObject()
@@ -95,10 +95,11 @@ fun motionTimeSignatureConstraint(expanded: Boolean) : ConstraintSet {
 }
 
 fun motionHeaderConstraint(maxWidth: Float, expanded: Boolean): ConstraintSet {
-    val timeSignatureContainerWidth = if(expanded) 150 else 80
+
     val height = ScreenSettings.headerContainerHeight.value
     val padding = ScreenSettings.innerPadding.value
     val maxContainerWidth = maxWidth - ScreenSettings.containerMargins.value * 2 - padding * 5
+    val timeSignatureContainerWidth = if(expanded) (maxContainerWidth / 2) else 80
     return ConstraintSet( JSONObject()
         .put("timeSignatureContainer", JSONObject()
             .put("width", timeSignatureContainerWidth)
@@ -109,7 +110,7 @@ fun motionHeaderConstraint(maxWidth: Float, expanded: Boolean): ConstraintSet {
             .put("end", listOf("'noteContainer'", "'start'", padding / 2))
         )
         .put("noteContainer", JSONObject()
-            .put("width", maxContainerWidth - timeSignatureContainerWidth)
+            .put("width", maxContainerWidth - timeSignatureContainerWidth.toFloat())
             .put("height", height - padding * 2)
             .put("top", listOf("'parent'", "'top'", padding))
             .put("bottom", listOf("'parent'", "'bottom'", padding))

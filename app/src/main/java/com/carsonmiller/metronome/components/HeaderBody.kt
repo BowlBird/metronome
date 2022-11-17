@@ -1,5 +1,6 @@
 package com.carsonmiller.metronome.components
 
+import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -28,6 +29,8 @@ import androidx.constraintlayout.compose.MotionLayout
 import com.carsonmiller.metronome.*
 import com.carsonmiller.metronome.R
 import com.carsonmiller.metronome.ui.theme.musicFont
+import kotlinx.coroutines.async
+import kotlin.math.round
 
 
 @OptIn(ExperimentalMotionApi::class)
@@ -39,20 +42,19 @@ fun HeaderBody(
     appSettings: PersistentAppSettings,
     musicSettings: PersistentMusicSettings
 ) {
-    //animation for buttons and container
-    val animationProgress by animateFloatAsState(
-        // specifying target value on below line.
-        targetValue = if (appSettings.timeSignatureExpanded) 1f else 0f,
-
-        // on below line we are specifying
-        animationSpec = tween(300)
-    )
+    val variableFloat = round(
+        animateFloatAsState(
+            if(appSettings.timeSignatureExpanded) 1f else 0f,
+            tween(300),
+            .3f
+        ).value * 100
+    ) / 100
 
     val maxWidth = LocalConfiguration.current.screenWidthDp.toFloat()
     MotionLayout(
         motionHeaderConstraint(maxWidth,false),
         motionHeaderConstraint(maxWidth,true),
-        progress = animationProgress,
+        progress = variableFloat,
         modifier = modifier
     ) {
         TimeSignatureContainer(
@@ -63,7 +65,7 @@ fun HeaderBody(
                     appSettings.timeSignatureExpanded = !appSettings.timeSignatureExpanded
                 }
                 .layoutId("timeSignatureContainer"),
-            animationProgress = animationProgress,
+            animationProgress = variableFloat,
             musicSettings = musicSettings,
             numerator = numerator,
             denominator = denominator)
@@ -71,9 +73,9 @@ fun HeaderBody(
         //Notes and Music Bar Holder
         MusicStaffContainer(
             modifier = Modifier
-            .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
-            .background(color = MaterialTheme.colorScheme.inversePrimary)
-            .layoutId("noteContainer"))
+                .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
+                .background(color = MaterialTheme.colorScheme.inversePrimary)
+                .layoutId("noteContainer"))
     }
 }
 
@@ -89,7 +91,7 @@ private fun TimeSignatureContainer(
         progress = animationProgress,
         modifier = modifier
     ) {
-
+        //ConstraintLayout(motionTimeSignatureConstraint(true),modifier = modifier) {
         TimeSignature(
             modifier = Modifier.layoutId("timeSignature"), numerator, denominator
         )
@@ -170,7 +172,7 @@ private fun MusicBar(modifier: Modifier = Modifier, scale: Float) =
  */
 @Composable
 private fun TimeSignature(
-    modifier: Modifier = Modifier, numerator: Int = 4, denominator: Int = 4, fontSize: Int = 70,
+    modifier: Modifier = Modifier, numerator: Int, denominator: Int, fontSize: Int = 70,
     color: Color = MaterialTheme.colorScheme.onBackground) {
     //makes the font the same size no matter system settings.
     val spFontSize = with(LocalDensity.current) { (fontSize / fontScale).sp }

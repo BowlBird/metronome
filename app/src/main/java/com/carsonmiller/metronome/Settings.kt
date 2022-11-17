@@ -3,6 +3,7 @@ package com.carsonmiller.metronome
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
+import android.text.method.TextKeyListener.clear
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,9 +15,16 @@ import androidx.compose.ui.unit.dp
  */
 abstract class PersistentSettings(activity: Activity) {
     protected val sharedPref: SharedPreferences = activity.getPreferences(Context.MODE_PRIVATE)
+    fun clearPreferences() =
+        sharedPref.edit().clear().apply()
 
-    protected fun put(string: String, value: Int): Int {
+    protected fun putInt(string: String, value: Int): Int {
         sharedPref.edit().putInt(string, value).apply()
+        return value
+    }
+
+    protected fun putBoolean(string: String, value: Boolean): Boolean {
+        sharedPref.edit().putBoolean(string, value).apply()
         return value
     }
 }
@@ -39,9 +47,9 @@ class PersistentMusicSettings(activity: Activity) : PersistentSettings(activity)
         get() = _numerator
         set(value) {
             _numerator = when {
-                value < 1 -> put(numeratorString, 1)
-                value > 999 -> put(numeratorString, 999)
-                else -> put(numeratorString, value)
+                value < 1 -> putInt(numeratorString, 1)
+                value > 999 -> putInt(numeratorString, 999)
+                else -> putInt(numeratorString, value)
             }
         }
 
@@ -49,9 +57,9 @@ class PersistentMusicSettings(activity: Activity) : PersistentSettings(activity)
         get() = _denominator
         set(value) {
             _denominator = when {
-                value < 1 -> put(denominatorString, 1)
-                value > 64 -> put(denominatorString, 64)
-                else -> put(denominatorString, value)
+                value < 1 -> putInt(denominatorString, 1)
+                value > 64 -> putInt(denominatorString, 64)
+                else -> putInt(denominatorString, value)
             }
         }
 
@@ -59,10 +67,31 @@ class PersistentMusicSettings(activity: Activity) : PersistentSettings(activity)
         get() = _bpm
         set(value) {
             _bpm = when {
-                value < 1 -> put(bpmString, 1)
-                value > 999 -> put(bpmString, 999)
-                else -> put(bpmString, value)
+                value < 1 -> putInt(bpmString, 1)
+                value > 999 -> putInt(bpmString, 999)
+                else -> putInt(bpmString, value)
             }
+        }
+}
+
+/**
+ * holds certain states of the app
+ */
+class PersistentAppSettings(activity: Activity) : PersistentSettings(activity) {
+    /* strings for sharedPref */
+    private val timeSignatureExpandedString = "timeSignatureExpanded"
+
+    /* backing fields */
+    private var _timeSignatureExpanded: Boolean by mutableStateOf(
+        sharedPref.getBoolean(
+            timeSignatureExpandedString, false
+        )
+    )
+
+    var timeSignatureExpanded: Boolean
+        get() = _timeSignatureExpanded
+        set(value) {
+            _timeSignatureExpanded = putBoolean(timeSignatureExpandedString, value)
         }
 }
 
@@ -85,25 +114,4 @@ class ScreenSettings {
         val smallButtonContainerHeight: Dp = 25.dp
         val settingsContainerHeight: Dp = 400.dp
     }
-}
-
-/**
- * holds certain states of the app
- */
-class PersistentAppSettings(activity: Activity) : PersistentSettings(activity) {
-    /* strings for sharedPref */
-    private val timeSignatureExpandedString = "timeSignatureExpanded"
-
-    /* backing fields */
-    private var _timeSignatureExpanded: Boolean by mutableStateOf(
-        sharedPref.getBoolean(
-            timeSignatureExpandedString, false
-        )
-    )
-
-    var timeSignatureExpanded: Boolean
-        get() = _timeSignatureExpanded
-        set(value) {
-            _timeSignatureExpanded = value
-        }
 }

@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -68,5 +69,5 @@ fun MainLayout(musicSettings: PersistentMusicSettings, appSettings: PersistentAp
         //settings container
         PagerContainer(modifier = Modifier
             .containerModifier(ScreenSettings.settingsContainerHeight)
-            .layoutId("settingsBox"), { Text("Test") }, { Text("Test2") }, { Text("Test3") })
+            .layoutId("settingsBox"), { Button({appSettings.clearPreferences()}, content = {}) }, { Text("Test2") }, { Text("Test3") })
     }
