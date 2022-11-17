@@ -3,7 +3,6 @@ package com.carsonmiller.metronome
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import android.text.method.TextKeyListener.clear
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue

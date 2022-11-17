@@ -1,6 +1,5 @@
 package com.carsonmiller.metronome.components
 
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -29,7 +28,6 @@ import androidx.constraintlayout.compose.MotionLayout
 import com.carsonmiller.metronome.*
 import com.carsonmiller.metronome.R
 import com.carsonmiller.metronome.ui.theme.musicFont
-import kotlinx.coroutines.async
 import kotlin.math.round
 
 
@@ -124,7 +122,7 @@ private fun MusicStaffContainer(modifier: Modifier = Modifier) = Box(
     MusicBar(
         modifier = Modifier
             .fillMaxWidth()
-            .offset(y = 20.dp), 4f //hardcoded values for alignment
+            .offset(y = 20.dp)//hardcoded value for alignment
     )
 
     //row
@@ -159,10 +157,10 @@ private fun Note(modifier: Modifier = Modifier, note: Int) {
  * the music bar (basically just an image with controllable x scale)
  */
 @Composable
-private fun MusicBar(modifier: Modifier = Modifier, scale: Float) =
+private fun MusicBar(modifier: Modifier = Modifier) =
     Image(
         painterResource(id = R.drawable.ic_music_staff),
-        modifier = modifier.scale(scale, 1f),
+        modifier = modifier.scale(100f , 1f), //100 just so it's long enough you'll never see the end of it.
         contentDescription = "Music Staff",
         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
     )
