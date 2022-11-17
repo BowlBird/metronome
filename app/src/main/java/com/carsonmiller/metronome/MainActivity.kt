@@ -49,8 +49,8 @@ fun MainLayout(musicSettings: PersistentMusicSettings, appSettings: PersistentAp
         //Music staff container
         HeaderBody(
             modifier = Modifier
-                .containerModifier(ScreenSettings.scrollContainerHeight)
-                .layoutId("scrollBox"),
+                .containerModifier(ScreenSettings.headerContainerHeight)
+                .layoutId("headerBox"),
             numerator = musicSettings.numerator,
             denominator = musicSettings.denominator,
             appSettings = appSettings,

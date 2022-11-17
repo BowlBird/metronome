@@ -80,7 +80,7 @@ class ScreenSettings {
         val containerMargins: Dp = 20.dp
 
         /* container heights */
-        val scrollContainerHeight: Dp = 100.dp
+        val headerContainerHeight: Dp = 100.dp
         val buttonContainerHeight: Dp = 80.dp
         val smallButtonContainerHeight: Dp = 25.dp
         val settingsContainerHeight: Dp = 400.dp

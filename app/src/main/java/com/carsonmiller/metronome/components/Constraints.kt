@@ -3,27 +3,28 @@ package com.carsonmiller.metronome.components
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintSet
 import com.carsonmiller.metronome.ScreenSettings
+import org.json.JSONObject
 
 
 fun containerConstraints() = ConstraintSet {
 
     val bpmText = createRefFor("bpmText")
-    val scrollBox = createRefFor("scrollBox")
+    val header = createRefFor("headerBox")
     val buttonBox = createRefFor("buttonBox")
     val settingsBox = createRefFor("settingsBox")
-    val timeSignaturePopup = createRefFor("timeSignaturePopup")
 
     constrain(bpmText) {
         end.linkTo(
             parent.end, margin = ScreenSettings.containerSidePadding * 2
         ) //*2 for some contrast
         bottom.linkTo(
-            scrollBox.top, margin = ScreenSettings.containerMargins / 2 // / 2 to make it closer
+            header.top, margin = ScreenSettings.containerMargins / 2 // / 2 to make it closer
         )
     }
 
-    constrain(scrollBox) {
+    constrain(header) {
         bottom.linkTo(buttonBox.top, margin = ScreenSettings.containerMargins)
+        centerHorizontallyTo(parent)
     }
 
     constrain(buttonBox) {
@@ -33,13 +34,8 @@ fun containerConstraints() = ConstraintSet {
 
     constrain(settingsBox) {
         top.linkTo(buttonBox.bottom, margin = ScreenSettings.containerMargins)
+        centerHorizontallyTo(parent)
     }
-
-    constrain(timeSignaturePopup) {
-        centerVerticallyTo(parent, .5f)
-        centerHorizontallyTo(parent, .5f)
-    }
-
 }
 
 
@@ -67,43 +63,57 @@ fun timeSignatureConstraint(fontSize: Int) = ConstraintSet {
     }
 
     constrain(bottomText) {
-        top.linkTo(topText.top, margin = (fontSize / 2).dp)
-        centerHorizontallyTo(parent, .5f)
+        top.linkTo(topText.top, margin = (fontSize / 2).dp) //math to make it sit on top no matter
+        centerHorizontallyTo(parent, .5f)              //the font size
     }
 }
 
-fun timeSignatureContainerConstraint() = ConstraintSet {
-    val topLeft = createRefFor("topLeft")
-    val topRight = createRefFor("topRight")
-    val bottomLeft = createRefFor("bottomLeft")
-    val bottomRight = createRefFor("bottomRight")
-    val timeSignature = createRefFor("timeSignature")
+fun motionTimeSignatureConstraint(expanded: Boolean) : ConstraintSet {
+    val verticalPadding = if(expanded) ScreenSettings.innerPadding.value else -30
+    val horizontalPadding = if(expanded) ScreenSettings.innerPadding.value else 0
+    return ConstraintSet( JSONObject()
+        .put("timeSignature", JSONObject()
+            .put("centerVertically", "'parent'")
+            .put("centerHorizontally", "'parent'")
+        )
+        .put("topLeft", JSONObject()
+            .put("start", listOf("'parent'", "'start'", horizontalPadding))
+            .put("top", listOf("'parent'", "'top'", verticalPadding))
+        )
+        .put("topRight", JSONObject()
+            .put("end", listOf("'parent'", "'end'", horizontalPadding))
+            .put("top", listOf("'parent'", "'top'", verticalPadding))
+        )
+        .put("bottomLeft", JSONObject()
+            .put("start", listOf("'parent'", "'start'", horizontalPadding))
+            .put("bottom", listOf("'parent'", "'bottom'", verticalPadding))
+        )
+        .put("bottomRight", JSONObject()
+            .put("end", listOf("'parent'", "'end'", horizontalPadding))
+            .put("bottom", listOf("'parent'", "'bottom'", verticalPadding))
+        ).toString(2).replace("\"", ""))
+}
 
-    val padding = 10.dp
-
-    constrain(timeSignature) {
-        centerVerticallyTo(parent,.5f)
-        centerHorizontallyTo(parent,.5f)
-    }
-
-    constrain(topLeft) {
-        end.linkTo(timeSignature.start)
-        start.linkTo(parent.start)
-        top.linkTo(parent.top, padding)
-    }
-    constrain(topRight) {
-        start.linkTo(timeSignature.end)
-        end.linkTo(parent.end)
-        top.linkTo(parent.top, padding)
-    }
-    constrain(bottomLeft) {
-        end.linkTo(timeSignature.start)
-        start.linkTo(parent.start)
-        bottom.linkTo(parent.bottom, padding)
-    }
-    constrain(bottomRight) {
-        start.linkTo(timeSignature.end)
-        end.linkTo(parent.end)
-        bottom.linkTo(parent.bottom, padding)
-    }
+fun motionHeaderConstraint(maxWidth: Float, expanded: Boolean): ConstraintSet {
+    val timeSignatureContainerWidth = if(expanded) 150 else 80
+    val height = ScreenSettings.headerContainerHeight.value
+    val padding = ScreenSettings.innerPadding.value
+    val maxContainerWidth = maxWidth - ScreenSettings.containerMargins.value * 2 - padding * 5
+    return ConstraintSet( JSONObject()
+        .put("timeSignatureContainer", JSONObject()
+            .put("width", timeSignatureContainerWidth)
+            .put("height", height - padding * 2)
+            .put("top", listOf("'parent'", "'top'", padding))
+            .put("bottom", listOf("'parent'", "'bottom'", padding))
+            .put("start", listOf("'parent'", "'start'", padding))
+            .put("end", listOf("'noteContainer'", "'start'", padding / 2))
+        )
+        .put("noteContainer", JSONObject()
+            .put("width", maxContainerWidth - timeSignatureContainerWidth)
+            .put("height", height - padding * 2)
+            .put("top", listOf("'parent'", "'top'", padding))
+            .put("bottom", listOf("'parent'", "'bottom'", padding))
+            .put("start", listOf("'timeSignatureContainer'", "'end'", padding / 2))
+            .put("end", listOf("'parent'", "'end'", padding))
+        ).toString(2).replace("\"", ""))
 }
