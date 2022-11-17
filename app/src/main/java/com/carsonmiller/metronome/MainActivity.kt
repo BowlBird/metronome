@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -20,12 +19,10 @@ class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val musicSettings = PersistentMusicSettings(this)
-            val appSettings = PersistentAppSettings(this)
             MetronomeTheme {
                 MainLayout(
-                    musicSettings = musicSettings,
-                    appSettings = appSettings
+                    musicSettings = PersistentMusicSettings(this),
+                    appSettings = PersistentAppSettings(this)
                 )
             }
         }
@@ -35,7 +32,7 @@ class ComposeActivity : ComponentActivity() {
 @Composable
 fun MainLayout(musicSettings: PersistentMusicSettings, appSettings: PersistentAppSettings) =
     ConstraintLayout(
-        containerConstraints(),
+        remember {containerConstraints()},
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorScheme.background)
@@ -69,5 +66,5 @@ fun MainLayout(musicSettings: PersistentMusicSettings, appSettings: PersistentAp
         //settings container
         PagerContainer(modifier = Modifier
             .containerModifier(ScreenSettings.settingsContainerHeight)
-            .layoutId("settingsBox"), { Button({appSettings.clearPreferences()}, content = {}) }, { Text("Test2") }, { Text("Test3") })
+            .layoutId("settingsBox"), { Text("Test")}, { Text("Test2") }, { Text("Test3") })
     }

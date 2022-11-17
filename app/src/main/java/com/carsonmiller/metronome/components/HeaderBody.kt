@@ -50,8 +50,8 @@ fun HeaderBody(
 
     val maxWidth = LocalConfiguration.current.screenWidthDp.toFloat()
     MotionLayout(
-        motionHeaderConstraint(maxWidth,false),
-        motionHeaderConstraint(maxWidth,true),
+        remember {motionHeaderConstraint(maxWidth,false)},
+        remember {motionHeaderConstraint(maxWidth,true)},
         progress = variableFloat,
         modifier = modifier
     ) {
@@ -59,9 +59,7 @@ fun HeaderBody(
             Modifier
                 .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
                 .background(color = MaterialTheme.colorScheme.inversePrimary)
-                .clickable {
-                    appSettings.timeSignatureExpanded = !appSettings.timeSignatureExpanded
-                }
+                .clickable { appSettings.timeSignatureExpanded = !appSettings.timeSignatureExpanded }
                 .layoutId("timeSignatureContainer"),
             animationProgress = variableFloat,
             musicSettings = musicSettings,
@@ -84,12 +82,11 @@ private fun TimeSignatureContainer(
     numerator: Int, denominator: Int) {
     //holds and contains logic for time signature
     MotionLayout(
-        motionTimeSignatureConstraint(false),
-        motionTimeSignatureConstraint(true),
+        remember {motionTimeSignatureConstraint(false)},
+        remember {motionTimeSignatureConstraint(true)},
         progress = animationProgress,
         modifier = modifier
     ) {
-        //ConstraintLayout(motionTimeSignatureConstraint(true),modifier = modifier) {
         TimeSignature(
             modifier = Modifier.layoutId("timeSignature"), numerator, denominator
         )
@@ -127,12 +124,13 @@ private fun MusicStaffContainer(modifier: Modifier = Modifier) = Box(
 
     //row
     HorizontalScrollContainer {
+        val note = remember {R.drawable.ic_quarter_note}
         repeat(100) {
             Note(
                 modifier = Modifier
                     .height(55.dp)      //hardcoded values for alignment
                     .offset(y = 12.dp), //hardcoded values for alignment
-                note = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected
+                note = note
             )
         }
     }

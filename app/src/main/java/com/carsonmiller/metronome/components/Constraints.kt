@@ -95,7 +95,6 @@ fun motionTimeSignatureConstraint(expanded: Boolean) : ConstraintSet {
 }
 
 fun motionHeaderConstraint(maxWidth: Float, expanded: Boolean): ConstraintSet {
-
     val height = ScreenSettings.headerContainerHeight.value
     val padding = ScreenSettings.innerPadding.value
     val maxContainerWidth = maxWidth - ScreenSettings.containerMargins.value * 2 - padding * 5
