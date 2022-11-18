@@ -21,7 +21,7 @@ class ComposeActivity : ComponentActivity() {
         setContent {
             MetronomeTheme {
                 MainLayout(
-                    musicSettings = PersistentMusicSettings(this),
+                    musicSettingsList = PersistentMusicSettingsList(this),
                     appSettings = PersistentAppSettings(this)
                 )
             }
@@ -30,13 +30,15 @@ class ComposeActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainLayout(musicSettings: PersistentMusicSettings, appSettings: PersistentAppSettings) =
+fun MainLayout(musicSettingsList: PersistentMusicSettingsList, appSettings: PersistentAppSettings) =
     ConstraintLayout(
         remember {containerConstraints()},
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorScheme.background)
     ) {
+        /* logic for what musicSetting in the list is the current one */
+        val musicSettings by remember {mutableStateOf(musicSettingsList[appSettings.currentMusicSettings])}
         //text for bpm
         BpmTextBody(
             modifier = Modifier

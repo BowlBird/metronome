@@ -31,11 +31,11 @@ abstract class PersistentSettings(activity: Activity) {
 /**
  * holder for settings
  */
-class PersistentMusicSettings(activity: Activity) : PersistentSettings(activity) {
+class PersistentMusicSettings(activity: Activity, index: Int) : PersistentSettings(activity) {
     /* strings for sharedPref */
-    private val numeratorString = "numerator"
-    private val denominatorString = "denominator"
-    private val bpmString = "bpm"
+    private val numeratorString = "numerator$index"
+    private val denominatorString = "denominator$index"
+    private val bpmString = "bpm$index"
 
     /* backing fields */
     private var _numerator: Int by mutableStateOf(sharedPref.getInt(numeratorString, 4))
@@ -74,11 +74,56 @@ class PersistentMusicSettings(activity: Activity) : PersistentSettings(activity)
 }
 
 /**
+ * holder that is a list so that multiple music settings can be loaded
+ */
+class PersistentMusicSettingsList(private val activity: Activity) : PersistentSettings(activity) {
+    /* strings for sharedPref */
+    private val countString = "count"
+
+    /* backing fields */
+    private var _count: Int by mutableStateOf(sharedPref.getInt(countString, 1))
+
+    var count: Int
+        get() = _count
+        private set(value) {
+            _count = when {
+                value < 1 -> putInt(countString, 1)
+                else -> putInt(countString, value)
+            }
+        }
+
+    operator fun get(i: Int): PersistentMusicSettings {
+        require(i < count)
+        return PersistentMusicSettings(activity, i)
+    }
+
+    fun add() {
+        count++
+    }
+
+    fun remove(i: Int) {
+        repeat((count - 1) - i) {
+            val index = it + i
+            val copyTo = PersistentMusicSettings(activity, index)
+            val copyFrom = PersistentMusicSettings(activity, index + 1)
+            copyTo.denominator = copyFrom.denominator
+            copyTo.numerator = copyFrom.numerator
+            copyTo.bpm = copyFrom.bpm
+        }
+        val cleanMusicSettings = PersistentMusicSettings(activity, --count)
+        cleanMusicSettings.bpm = 100
+        cleanMusicSettings.denominator = 4
+        cleanMusicSettings.numerator = 4
+    }
+}
+
+/**
  * holds certain states of the app
  */
 class PersistentAppSettings(activity: Activity) : PersistentSettings(activity) {
     /* strings for sharedPref */
     private val timeSignatureExpandedString = "timeSignatureExpanded"
+    private val currentMusicSettingsString = "currentMusicSettings"
 
     /* backing fields */
     private var _timeSignatureExpanded: Boolean by mutableStateOf(
@@ -86,11 +131,23 @@ class PersistentAppSettings(activity: Activity) : PersistentSettings(activity) {
             timeSignatureExpandedString, false
         )
     )
+    private var _currentMusicSettings: Int by mutableStateOf(
+        sharedPref.getInt(currentMusicSettingsString, 0)
+    )
 
     var timeSignatureExpanded: Boolean
         get() = _timeSignatureExpanded
         set(value) {
             _timeSignatureExpanded = putBoolean(timeSignatureExpandedString, value)
+        }
+
+    var currentMusicSettings: Int
+        get() = _currentMusicSettings
+        set(value) {
+            _currentMusicSettings = when {
+                value < 0 -> putInt(currentMusicSettingsString, 0)
+                else -> putInt(currentMusicSettingsString, value)
+            }
         }
 }
 
