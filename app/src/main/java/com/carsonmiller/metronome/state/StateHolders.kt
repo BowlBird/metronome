@@ -44,7 +44,7 @@ class PersistentNote(musicSettingsIndex: Int, noteIndex: Int, activity: Activity
 
     /* backing fields */
     private var _level: NoteIntensity by mutableStateOf(
-        get(levelString, NoteIntensity.Normal)
+        NoteIntensity.valueOf(get(levelString, "Normal"))
     )
     private var _noteImage: Int by mutableStateOf(
         get(noteImageString, NoteType.QuarterNote.drawable)
@@ -97,7 +97,7 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
         set(value) {
             _numerator = when {
                 value < 1 -> put(1, numeratorString)
-                value > 999 -> put(999, numeratorString)
+                value > 99 -> put(99, numeratorString)
                 else -> put(value, numeratorString)
             }
         }
@@ -300,7 +300,7 @@ class ScreenSettings {
         /* container heights */
         val headerContainerHeight: Dp = 140.dp
         val buttonContainerHeight: Dp = 80.dp
-        val smallButtonContainerHeight: Dp = 30.dp
+        val smallButtonContainerHeight: Dp = 25.dp
         val settingsContainerHeight: Dp = 400.dp
     }
 }

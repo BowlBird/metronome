@@ -6,14 +6,24 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
+import androidx.compose.material.rememberSwipeableState
+import androidx.compose.material.ripple.RippleTheme
+import androidx.compose.material.swipeable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -162,21 +172,31 @@ private fun Notes(modifier: Modifier = Modifier, musicSettings: PersistentMusicS
             modifier = modifier
                 .height(55.dp)
                 .offset(y = 12.dp),
-            note = musicSettings[noteNum].noteImage
+            note = musicSettings[noteNum]
         )
     }
 }
 
 /**
- * ToDo
+ * Represents and holds note value
  */
 @Composable
-private fun Note(modifier: Modifier = Modifier, note: Int) {
+private fun Note(modifier: Modifier = Modifier, note: PersistentNote) {
     Image(
-        painterResource(id = note),
+        painterResource(id = note.noteImage),
         modifier = modifier
             .scale(1.004f) //hardcoded values for alignment
-            .wrapContentSize(),
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null
+            ) {
+                note.level = when (note.level) {
+                    NoteIntensity.Rest -> NoteIntensity.Quiet
+                    NoteIntensity.Quiet -> NoteIntensity.Normal
+                    NoteIntensity.Normal -> NoteIntensity.Loud
+                    NoteIntensity.Loud -> NoteIntensity.Rest
+                }
+            },
         contentDescription = "Note",
         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
     )
