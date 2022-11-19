@@ -136,8 +136,10 @@ private fun MusicStaffContainer(
     )
 
     //row
-    HorizontalScrollContainer {
+    HorizontalScrollContainer(modifier = Modifier.fillMaxHeight()) {
         Notes(musicSettings = musicSettings)
+        //I want to be able to scroll just a little further, so add an extra little space
+        Box(modifier.width(25.dp)) {}
     }
 
 }

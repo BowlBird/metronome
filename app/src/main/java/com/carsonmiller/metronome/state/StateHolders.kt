@@ -107,7 +107,7 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
         set(value) {
             _denominator = when {
                 value < 1 -> put(1, denominatorString)
-                value > 64 -> put(64, denominatorString)
+                value > 32 -> put(32, denominatorString)
                 else -> put(value, denominatorString)
             }
         }
@@ -135,14 +135,45 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
         get() = subdivision * numerator
 
     operator fun get(i: Int): PersistentNote {
+        fun connection(index: Int, numOfNotes: Int, groupSize: Int) =
+            when {
+                index % groupSize == 0 -> 2
+                index % groupSize == groupSize - 1 -> 0
+                index == numOfNotes - 1 -> 0
+                else -> 1
+            }
         require(i in 0 until numOfNotes)
         val note = PersistentNote(index, i, activity)
-        note.noteImage = when (denominator) {
+        note.noteImage = when (denominator * subdivision) {
             1 -> NoteType.WholeNote.drawable
-            2 -> NoteType.HalfNote.drawable
-            4 -> NoteType.QuarterNote.drawable
-            else -> throw Exception("NOT IMPLEMENTED")
-
+            2,3 -> NoteType.HalfNote.drawable
+            4,6 -> NoteType.QuarterNote.drawable
+            8,12 -> when (connection(i, numOfNotes, 4)) {
+                0 -> NoteType.EighthNoteFrontConnected.drawable
+                1 -> NoteType.EighthNoteBothConnected.drawable
+                else -> NoteType.EighthNoteBackConnected.drawable
+            }
+            16,24 -> when (connection(i, numOfNotes, 4)) {
+                0 -> NoteType.SixteenthNoteFrontConnected.drawable
+                1 -> NoteType.SixteenthNoteBothConnected.drawable
+                else -> NoteType.SixteenthNoteBackConnected.drawable
+            }
+            32,48 -> when (connection(i, numOfNotes, 8)) {
+                0 -> NoteType.ThirtySecondNoteFrontConnected.drawable
+                1 -> NoteType.ThirtySecondNoteBothConnected.drawable
+                else -> NoteType.ThirtySecondNoteBackConnected.drawable
+            }
+            64,96 -> when (connection(i, numOfNotes, 16)) {
+                0 -> NoteType.SixtyFourthNoteFrontConnected.drawable
+                1 -> NoteType.SixtyFourthNoteBothConnected.drawable
+                else -> NoteType.SixtyFourthNoteBackConnected.drawable
+            }
+            128 -> when (connection(i, numOfNotes, 32)) {
+                0 -> NoteType.OneHundredTwentyEighthNoteFrontConnected.drawable
+                1 -> NoteType.OneHundredTwentyEighthNoteBothConnected.drawable
+                else -> NoteType.OneHundredTwentyEighthNoteBackConnected.drawable
+            }
+            else -> throw Exception("This denominator doesn't exist!")
         }
         return note
     }
