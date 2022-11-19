@@ -97,7 +97,12 @@ private fun TimeSignatureContainer(
         modifier = modifier
     ) {
         TimeSignature(
-            modifier = Modifier.layoutId("timeSignature"), numerator, denominator
+            modifier = Modifier
+                .offset(y = 12.dp)
+                .layoutId("timeSignature"),
+            numerator = numerator,
+            denominator = denominator,
+            fontSize = 85
         )
         val buttonColor =
             ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -136,8 +141,14 @@ private fun MusicStaffContainer(
     )
 
     //row
-    HorizontalScrollContainer(modifier = Modifier.fillMaxHeight()) {
-        Notes(musicSettings = musicSettings)
+    HorizontalScrollContainer(
+        modifier = Modifier
+            .fillMaxHeight()
+
+    ) {
+        Notes(modifier = Modifier
+            .offset(y = 20.dp),
+            musicSettings = musicSettings)
         //I want to be able to scroll just a little further, so add an extra little space
         Box(modifier.width(25.dp)) {}
     }

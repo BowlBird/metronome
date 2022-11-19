@@ -287,7 +287,7 @@ class PersistentAppSettings(activity: Activity) : Persist(activity) {
 /* Static Screen Setting References for the rest of the app */
 class ScreenSettings {
     companion object {
-        val cornerRounding: Dp = 10.dp //for rounded shapes
+        val cornerRounding: Dp = 8.dp //for rounded shapes
 
         /* padding */
         val containerSidePadding: Dp = 32.dp
@@ -298,9 +298,9 @@ class ScreenSettings {
         val containerMargins: Dp = 20.dp
 
         /* container heights */
-        val headerContainerHeight: Dp = 100.dp
+        val headerContainerHeight: Dp = 140.dp
         val buttonContainerHeight: Dp = 80.dp
-        val smallButtonContainerHeight: Dp = 25.dp
+        val smallButtonContainerHeight: Dp = 30.dp
         val settingsContainerHeight: Dp = 400.dp
     }
 }
