@@ -2,7 +2,7 @@ package com.carsonmiller.metronome.components
 
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintSet
-import com.carsonmiller.metronome.ScreenSettings
+import com.carsonmiller.metronome.state.ScreenSettings
 import org.json.JSONObject
 
 

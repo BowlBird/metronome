@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.carsonmiller.metronome.components.*
 import com.carsonmiller.metronome.ui.theme.MetronomeTheme
+import com.carsonmiller.metronome.state.*
 
 
 class ComposeActivity : ComponentActivity() {
@@ -21,7 +22,7 @@ class ComposeActivity : ComponentActivity() {
         setContent {
             MetronomeTheme {
                 MainLayout(
-                    musicSettingsList = PersistentMusicSettingsList(this),
+                    musicSettingsList = PersistentMusicSegmentList(this),
                     appSettings = PersistentAppSettings(this)
                 )
             }
@@ -30,7 +31,7 @@ class ComposeActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainLayout(musicSettingsList: PersistentMusicSettingsList, appSettings: PersistentAppSettings) =
+fun MainLayout(musicSettingsList: PersistentMusicSegmentList, appSettings: PersistentAppSettings) =
     ConstraintLayout(
         remember {containerConstraints()},
         modifier = Modifier
