@@ -56,15 +56,12 @@ fun HeaderBody(
 ) {
     val variableFloat = round(
         animateFloatAsState(
-            if (appSettings.timeSignatureExpanded) 1f else 0f,
-            tween(300),
-            .3f
+            if (appSettings.timeSignatureExpanded) 1f else 0f, tween(300), .3f
         ).value * 100
     ) / 100
 
     val maxWidth = LocalConfiguration.current.screenWidthDp.toFloat()
-    MotionLayout(
-        remember { motionHeaderConstraint(maxWidth, false) },
+    MotionLayout(remember { motionHeaderConstraint(maxWidth, false) },
         remember { motionHeaderConstraint(maxWidth, true) },
         progress = variableFloat,
         modifier = modifier
@@ -87,8 +84,7 @@ fun HeaderBody(
             modifier = Modifier
                 .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
                 .background(color = MaterialTheme.colorScheme.inversePrimary)
-                .layoutId("noteContainer"),
-            musicSettings = musicSettings
+                .layoutId("noteContainer"), musicSettings = musicSettings
         )
     }
 }
@@ -96,12 +92,14 @@ fun HeaderBody(
 @OptIn(ExperimentalMotionApi::class)
 @Composable
 private fun TimeSignatureContainer(
-    modifier: Modifier = Modifier, animationProgress: Float, musicSettings: PersistentMusicSegment,
-    numerator: Int, denominator: Int
+    modifier: Modifier = Modifier,
+    animationProgress: Float,
+    musicSettings: PersistentMusicSegment,
+    numerator: Int,
+    denominator: Int
 ) {
     //holds and contains logic for time signature
-    MotionLayout(
-        remember { motionTimeSignatureConstraint(false) },
+    MotionLayout(remember { motionTimeSignatureConstraint(false) },
         remember { motionTimeSignatureConstraint(true) },
         progress = animationProgress,
         modifier = modifier
@@ -138,8 +136,7 @@ private fun TimeSignatureContainer(
 
 @Composable
 private fun MusicStaffContainer(
-    modifier: Modifier = Modifier,
-    musicSettings: PersistentMusicSegment
+    modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment
 ) = Box(
     modifier = modifier
 ) {
@@ -152,13 +149,12 @@ private fun MusicStaffContainer(
 
     //row
     HorizontalScrollContainer(
-        modifier = Modifier
-            .fillMaxHeight()
+        modifier = Modifier.fillMaxHeight()
 
     ) {
-        Notes(modifier = Modifier
-            .offset(y = 20.dp),
-            musicSettings = musicSettings)
+        Notes(
+            modifier = Modifier.offset(y = 20.dp), musicSettings = musicSettings
+        )
         //I want to be able to scroll just a little further, so add an extra little space
         Box(modifier.width(25.dp)) {}
     }
@@ -171,8 +167,7 @@ private fun Notes(modifier: Modifier = Modifier, musicSettings: PersistentMusicS
         Note(
             modifier = modifier
                 .height(55.dp)
-                .offset(y = 12.dp),
-            note = musicSettings[noteNum]
+                .offset(y = (12).dp), note = musicSettings[noteNum]
         )
     }
 }
@@ -182,47 +177,63 @@ private fun Notes(modifier: Modifier = Modifier, musicSettings: PersistentMusicS
  */
 @Composable
 private fun Note(modifier: Modifier = Modifier, note: PersistentNote) {
-    Image(
-        painterResource(id = note.noteImage),
-        modifier = modifier
-            .scale(1.004f) //hardcoded values for alignment
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                note.level = when (note.level) {
-                    NoteIntensity.Rest -> NoteIntensity.Quiet
-                    NoteIntensity.Quiet -> NoteIntensity.Normal
-                    NoteIntensity.Normal -> NoteIntensity.Loud
-                    NoteIntensity.Loud -> NoteIntensity.Rest
-                }
-            },
-        contentDescription = "Note",
-        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
-    )
+    Column {
+        Image(
+            painterResource(id = note.noteImage),
+            modifier = modifier
+                .scale(1.004f) //hardcoded values for alignment
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() }, indication = null
+                ) {
+                    note.level = when (note.level) {
+                        NoteIntensity.Rest -> NoteIntensity.Quiet
+                        NoteIntensity.Quiet -> NoteIntensity.Normal
+                        NoteIntensity.Normal -> NoteIntensity.Loud
+                        NoteIntensity.Loud -> NoteIntensity.Rest
+                    }
+                },
+            contentDescription = "Note",
+            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
+        )
+
+        val image = when (note.level) {
+            NoteIntensity.Loud -> R.drawable.ic_accent
+            NoteIntensity.Quiet -> R.drawable.ic_soft
+            else -> R.drawable.ic_blank
+        }
+        Image(
+            painterResource(image),
+            modifier = modifier
+                .scale(0.9f)
+                .offset(y = (-16).dp),
+            contentDescription = "Accent",
+            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
+        )
+    }
 }
 
 /**
  * the music bar (basically just an image with controllable x scale)
  */
 @Composable
-private fun MusicBar(modifier: Modifier = Modifier) =
-    Image(
-        painterResource(id = R.drawable.ic_music_staff),
-        modifier = modifier.scale(
-            100f,
-            1f
-        ), //100 just so it's long enough you'll never see the end of it.
-        contentDescription = "Music Staff",
-        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
-    )
+private fun MusicBar(modifier: Modifier = Modifier) = Image(
+    painterResource(id = R.drawable.ic_music_staff),
+    modifier = modifier.scale(
+        100f, 1f
+    ), //100 just so it's long enough you'll never see the end of it.
+    contentDescription = "Music Staff",
+    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
+)
 
 /**
  * Time signature with controllable numerator and denominator
  */
 @Composable
 private fun TimeSignature(
-    modifier: Modifier = Modifier, numerator: Int, denominator: Int, fontSize: Int = 70,
+    modifier: Modifier = Modifier,
+    numerator: Int,
+    denominator: Int,
+    fontSize: Int = 70,
     color: Color = MaterialTheme.colorScheme.onBackground
 ) {
     //makes the font the same size no matter system settings.
@@ -253,11 +264,10 @@ private fun TimeSignature(
 @Composable
 private fun TimeSignatureNumber(
     modifier: Modifier = Modifier, value: Int, fontSize: TextUnit, color: Color
-) =
-    Text(
-        text = value.toString(),
-        modifier = modifier,
-        fontFamily = musicFont,
-        fontSize = fontSize,
-        color = color
-    )
+) = Text(
+    text = value.toString(),
+    modifier = modifier,
+    fontFamily = musicFont,
+    fontSize = fontSize,
+    color = color
+)

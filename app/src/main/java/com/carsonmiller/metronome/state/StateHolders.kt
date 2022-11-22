@@ -30,7 +30,15 @@ enum class NoteType {
     SixtyFourthNoteBothConnected {override val drawable = R.drawable.ic_sixty_fourth_note_both_connected},
     OneHundredTwentyEighthNoteBackConnected {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_back_connected},
     OneHundredTwentyEighthNoteFrontConnected {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_front_connected},
-    OneHundredTwentyEighthNoteBothConnected {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected};
+    OneHundredTwentyEighthNoteBothConnected {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected},
+    WholeRest {override val drawable = R.drawable.ic_whole_rest},
+    HalfRest {override val drawable = R.drawable.ic_half_rest},
+    QuarterRest {override val drawable = R.drawable.ic_quarter_rest},
+    EighthRest {override val drawable = R.drawable.ic_eighth_rest},
+    SixteenthRest {override val drawable = R.drawable.ic_sixteenth_rest},
+    ThirtySecondRest {override val drawable = R.drawable.ic_thirty_second_rest},
+    SixtyFourthRest {override val drawable = R.drawable.ic_sixty_fourth_rest},
+    OneHundredTwentyEighthRest {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_rest};
 
     abstract val drawable: Int
 }
@@ -135,40 +143,63 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
         get() = subdivision * numerator
 
     operator fun get(i: Int): PersistentNote {
-        fun connection(index: Int, numOfNotes: Int, groupSize: Int) =
-            when {
-                index % groupSize == 0 -> 2
-                index % groupSize == groupSize - 1 -> 0
-                index == numOfNotes - 1 -> 0
+        fun connection(i: Int, groupSize: Int): Int {
+            fun distanceFromRest(i: Int):Int {
+                for(j in i downTo 0) {
+                    if(PersistentNote(index, j, activity).level == NoteIntensity.Rest)
+                        return i - j
+                }
+                return i - groupSize + 1
+            }
+            return when {
+                i == 0 -> 2
+                distanceFromRest(i) % groupSize == 1 -> 2
+                distanceFromRest(i) % groupSize == 0 -> 0
+                PersistentNote(index, i + 1, activity).level == NoteIntensity.Rest -> 0
                 else -> 1
             }
+        }
         require(i in 0 until numOfNotes)
         val note = PersistentNote(index, i, activity)
-        note.noteImage = when (denominator * subdivision) {
+        note.noteImage =
+            if(note.level == NoteIntensity.Rest)
+                when (denominator * subdivision) {
+                    1 -> NoteType.WholeRest.drawable
+                    2,3 -> NoteType.HalfRest.drawable
+                    4,6 -> NoteType.QuarterRest.drawable
+                    8,12 -> NoteType.EighthRest.drawable
+                    16,24 -> NoteType.SixteenthRest.drawable
+                    32,48 -> NoteType.ThirtySecondRest.drawable
+                    64,96 -> NoteType.SixtyFourthRest.drawable
+                    128 -> NoteType.OneHundredTwentyEighthRest.drawable
+                    else -> throw Exception("This denominator doesn't exist!")
+                }
+            else
+                when (denominator * subdivision) {
             1 -> NoteType.WholeNote.drawable
             2,3 -> NoteType.HalfNote.drawable
             4,6 -> NoteType.QuarterNote.drawable
-            8,12 -> when (connection(i, numOfNotes, 4)) {
+            8,12 -> when (connection(i, 4)) {
                 0 -> NoteType.EighthNoteFrontConnected.drawable
                 1 -> NoteType.EighthNoteBothConnected.drawable
                 else -> NoteType.EighthNoteBackConnected.drawable
             }
-            16,24 -> when (connection(i, numOfNotes, 4)) {
+            16,24 -> when (connection(i, 4)) {
                 0 -> NoteType.SixteenthNoteFrontConnected.drawable
                 1 -> NoteType.SixteenthNoteBothConnected.drawable
                 else -> NoteType.SixteenthNoteBackConnected.drawable
             }
-            32,48 -> when (connection(i, numOfNotes, 8)) {
+            32,48 -> when (connection(i, 8)) {
                 0 -> NoteType.ThirtySecondNoteFrontConnected.drawable
                 1 -> NoteType.ThirtySecondNoteBothConnected.drawable
                 else -> NoteType.ThirtySecondNoteBackConnected.drawable
             }
-            64,96 -> when (connection(i, numOfNotes, 16)) {
+            64,96 -> when (connection(i, 16)) {
                 0 -> NoteType.SixtyFourthNoteFrontConnected.drawable
                 1 -> NoteType.SixtyFourthNoteBothConnected.drawable
                 else -> NoteType.SixtyFourthNoteBackConnected.drawable
             }
-            128 -> when (connection(i, numOfNotes, 32)) {
+            128 -> when (connection(i, 32)) {
                 0 -> NoteType.OneHundredTwentyEighthNoteFrontConnected.drawable
                 1 -> NoteType.OneHundredTwentyEighthNoteBothConnected.drawable
                 else -> NoteType.OneHundredTwentyEighthNoteBackConnected.drawable
