@@ -18,8 +18,7 @@ fun MetronomeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
 
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    dynamicColor: Boolean = true, content: @Composable () -> Unit
 ) {
 
     val colorScheme = when {
@@ -37,18 +36,17 @@ fun MetronomeTheme(
             //for the top (status bar)
             val window = (view.context as Activity).window
             window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window,view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
 
             //for the bottom (navigation bar)
             window.navigationBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window,view).isAppearanceLightNavigationBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars =
+                !darkTheme
         }
     }
 
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = typography,
-        content = content
+        colorScheme = colorScheme, typography = typography, content = content
     )
 }
