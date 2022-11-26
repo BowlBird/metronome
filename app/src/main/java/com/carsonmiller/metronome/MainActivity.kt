@@ -69,5 +69,8 @@ fun MainLayout(musicSettingsList: PersistentMusicSegmentList, appSettings: Persi
         //settings container
         PagerContainer(modifier = Modifier
             .containerModifier(ScreenSettings.settingsContainerHeight)
-            .layoutId("settingsBox"), { Text("Test")}, { Text("Test2") }, { Text("Test3") })
+            .layoutId("settingsBox"),
+            { SettingsPage(musicSegmentState = musicSettings)},
+            { Text("Test2") },
+            { Text("Test3") })
     }

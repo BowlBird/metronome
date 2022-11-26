@@ -143,7 +143,7 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
         get() = subdivision * numerator
 
     operator fun get(i: Int): PersistentNote {
-        fun connection(i: Int, numOfNotes: Int, groupSize: Int): Int {
+        fun connection(i: Int, numOfNotes: Int, groupSize: Int = (denominator * subdivision) / 4): Int {
             fun distanceFromRest(i: Int):Int {
                 for(j in i downTo 0) {
                     if(PersistentNote(index, j, activity).level == NoteIntensity.Rest)
@@ -151,11 +151,20 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
                 }
                 return i - groupSize + 1
             }
-            return when {
+            return if(groupSize % 3 != 0) when {
                 i == 0 -> 2
                 distanceFromRest(i) % groupSize == 1 -> 2
                 distanceFromRest(i) % groupSize == 0 -> 0
                 PersistentNote(index, i + 1, activity).level == NoteIntensity.Rest -> 0
+                i == numOfNotes - 1 -> 0
+                else -> 1
+            } else when {
+                i == 0 -> 2
+                distanceFromRest(i) == 1 -> 2
+                distanceFromRest(i) == 0 -> 0
+                PersistentNote(index, i + 1, activity).level == NoteIntensity.Rest &&  i % 3 != 0 -> 0
+                i % 3 == 0 -> 2
+                i % 3 == 2  && distanceFromRest(i) != 1 -> 0
                 i == numOfNotes - 1 -> 0
                 else -> 1
             }
@@ -180,27 +189,27 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
             1 -> NoteType.WholeNote.drawable
             2,3 -> NoteType.HalfNote.drawable
             4,6 -> NoteType.QuarterNote.drawable
-            8,12 -> when (connection(i, numOfNotes, 4)) {
+            8,12 -> when (connection(i, numOfNotes)) {
                 0 -> NoteType.EighthNoteFrontConnected.drawable
                 1 -> NoteType.EighthNoteBothConnected.drawable
                 else -> NoteType.EighthNoteBackConnected.drawable
             }
-            16,24 -> when (connection(i, numOfNotes, 4)) {
+            16,24 -> when (connection(i, numOfNotes)) {
                 0 -> NoteType.SixteenthNoteFrontConnected.drawable
                 1 -> NoteType.SixteenthNoteBothConnected.drawable
                 else -> NoteType.SixteenthNoteBackConnected.drawable
             }
-            32,48 -> when (connection(i, numOfNotes, 8)) {
+            32,48 -> when (connection(i, numOfNotes)) {
                 0 -> NoteType.ThirtySecondNoteFrontConnected.drawable
                 1 -> NoteType.ThirtySecondNoteBothConnected.drawable
                 else -> NoteType.ThirtySecondNoteBackConnected.drawable
             }
-            64,96 -> when (connection(i, numOfNotes, 16)) {
+            64,96 -> when (connection(i, numOfNotes)) {
                 0 -> NoteType.SixtyFourthNoteFrontConnected.drawable
                 1 -> NoteType.SixtyFourthNoteBothConnected.drawable
                 else -> NoteType.SixtyFourthNoteBackConnected.drawable
             }
-            128 -> when (connection(i, numOfNotes, 32)) {
+            128 -> when (connection(i, numOfNotes)) {
                 0 -> NoteType.OneHundredTwentyEighthNoteFrontConnected.drawable
                 1 -> NoteType.OneHundredTwentyEighthNoteBothConnected.drawable
                 else -> NoteType.OneHundredTwentyEighthNoteBackConnected.drawable
@@ -334,5 +343,6 @@ class ScreenSettings {
         val buttonContainerHeight: Dp = 80.dp
         val smallButtonContainerHeight: Dp = 25.dp
         val settingsContainerHeight: Dp = 400.dp
+        val subdivisionSliderButtonHeight = 50.dp
     }
 }

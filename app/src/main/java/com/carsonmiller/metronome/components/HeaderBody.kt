@@ -1,33 +1,21 @@
 package com.carsonmiller.metronome.components
 
-import android.util.Log
 import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.FractionalThreshold
-import androidx.compose.material.rememberSwipeableState
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.swipeable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -61,7 +49,8 @@ fun HeaderBody(
     ) / 100
 
     val maxWidth = LocalConfiguration.current.screenWidthDp.toFloat()
-    MotionLayout(remember { motionHeaderConstraint(maxWidth, false) },
+    MotionLayout(
+        remember { motionHeaderConstraint(maxWidth, false) },
         remember { motionHeaderConstraint(maxWidth, true) },
         progress = variableFloat,
         modifier = modifier
@@ -99,7 +88,8 @@ private fun TimeSignatureContainer(
     denominator: Int
 ) {
     //holds and contains logic for time signature
-    MotionLayout(remember { motionTimeSignatureConstraint(false) },
+    MotionLayout(
+        remember { motionTimeSignatureConstraint(false) },
         remember { motionTimeSignatureConstraint(true) },
         progress = animationProgress,
         modifier = modifier
@@ -146,20 +136,43 @@ private fun MusicStaffContainer(
             .fillMaxWidth()
             .offset(y = 20.dp)//hardcoded value for alignment
     )
-
     //row
     HorizontalScrollContainer(
         modifier = Modifier.fillMaxHeight()
 
     ) {
-        Notes(
-            modifier = Modifier.offset(y = 20.dp), musicSettings = musicSettings
-        )
-        //I want to be able to scroll just a little further, so add an extra little space
-        Box(modifier.width(25.dp)) {}
+        Contents(musicSettings = musicSettings)
     }
 
 }
+
+@Composable
+private fun Contents(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) =
+    Box(modifier) {
+        if(musicSettings.subdivision == 3) {
+            Row(Modifier.offset(x = (1).dp, y = (-58).dp)) {
+                repeat(musicSettings.numOfNotes / 3) {
+                    Image(
+                        painterResource(id = R.drawable.ic_triplet_indicator),
+                        modifier = modifier
+                            .size((55 * 3).dp),
+                        contentDescription = "triplet indicator",
+                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
+                    )
+                }
+            }
+        }
+        Row(Modifier) {
+            Notes(
+                modifier = Modifier
+                    .offset(y = 20.dp),
+                musicSettings = musicSettings
+            )
+            //I want to be able to scroll just a little further, so add an extra little space
+            Box(modifier.width(25.dp)) {}
+        }
+    }
+
 
 @Composable
 private fun Notes(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) {

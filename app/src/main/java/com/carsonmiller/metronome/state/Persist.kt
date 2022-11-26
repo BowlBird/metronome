@@ -3,7 +3,6 @@ package com.carsonmiller.metronome.state
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.compose.runtime.mutableStateOf
 
 /**
  * Abstract class that handles saving logic

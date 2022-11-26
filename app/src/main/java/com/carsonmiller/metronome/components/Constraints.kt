@@ -117,3 +117,11 @@ fun motionHeaderConstraint(maxWidth: Float, expanded: Boolean): ConstraintSet {
             .put("end", listOf("'parent'", "'end'", padding))
         ).toString(2).replace("\"", ""))
 }
+
+fun settingsPageConstraint() = ConstraintSet {
+    val subdivisionSlider = createRefFor("subdivisionSlider")
+
+    constrain(subdivisionSlider) {
+        top.linkTo(parent.top, margin = -ScreenSettings.settingsContainerHeight / 2)
+    }
+}
