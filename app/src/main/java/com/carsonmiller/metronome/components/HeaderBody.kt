@@ -8,6 +8,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,6 +28,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.ExperimentalMotionApi
 import androidx.constraintlayout.compose.MotionLayout
 import com.carsonmiller.metronome.*
@@ -49,8 +54,7 @@ fun HeaderBody(
     ) / 100
 
     val maxWidth = LocalConfiguration.current.screenWidthDp.toFloat()
-    MotionLayout(
-        remember { motionHeaderConstraint(maxWidth, false) },
+    MotionLayout(remember { motionHeaderConstraint(maxWidth, false) },
         remember { motionHeaderConstraint(maxWidth, true) },
         progress = variableFloat,
         modifier = modifier
@@ -88,15 +92,14 @@ private fun TimeSignatureContainer(
     denominator: Int
 ) {
     //holds and contains logic for time signature
-    MotionLayout(
-        remember { motionTimeSignatureConstraint(false) },
+    MotionLayout(remember { motionTimeSignatureConstraint(false) },
         remember { motionTimeSignatureConstraint(true) },
         progress = animationProgress,
         modifier = modifier
     ) {
         TimeSignature(
             modifier = Modifier
-                .offset(y = 12.dp)
+                .offset(y = 20.dp)
                 .layoutId("timeSignature"),
             numerator = numerator,
             denominator = denominator,
@@ -143,53 +146,58 @@ private fun MusicStaffContainer(
     ) {
         Contents(musicSettings = musicSettings)
     }
-
 }
 
 @Composable
 private fun Contents(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) =
-    Box(modifier) {
-        if(musicSettings.subdivision == 3) {
-            Row(Modifier.offset(x = (1).dp, y = (-58).dp)) {
-                repeat(musicSettings.numOfNotes / 3) {
-                    Image(
-                        painterResource(id = R.drawable.ic_triplet_indicator),
-                        modifier = modifier
-                            .size((55 * 3).dp),
-                        contentDescription = "triplet indicator",
-                        colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
-                    )
-                }
+    ConstraintLayout(
+        constraintSet = sheetConstraints(musicSettings.currentNote),
+        modifier = modifier.width((55 * (musicSettings.numOfNotes + 1)).dp),
+    ) {
+        val scrollState = rememberLazyListState()
+        LazyRow(
+            Modifier.layoutId("tripletIndicators"),
+            scrollState,
+            userScrollEnabled = false) {
+            items(musicSettings.numOfNotes / 3) {
+                Image(
+                    painterResource(id = R.drawable.ic_triplet_indicator),
+                    modifier = modifier.size(((55 * 3) * 1.002).dp),
+                    contentDescription = "triplet indicator",
+                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
+                    alpha = if (musicSettings.subdivision == 3) 1f else 0f
+                )
+            }
+
+        }
+
+        LazyRow(Modifier.layoutId("notes"), scrollState,userScrollEnabled = false) {
+            items(musicSettings.numOfNotes) { noteNum ->
+                Note(
+                    modifier = modifier
+                        .height(55.dp)
+                        .offset(y = (12).dp),
+                    note = musicSettings[noteNum],
+                    color = if (noteNum % musicSettings.subdivision == 0) MaterialTheme.colorScheme.onBackground
+                    else MaterialTheme.colorScheme.secondary
+                )
             }
         }
-        Row(Modifier) {
-            Notes(
-                modifier = Modifier
-                    .offset(y = 20.dp),
-                musicSettings = musicSettings
-            )
-            //I want to be able to scroll just a little further, so add an extra little space
-            Box(modifier.width(25.dp)) {}
-        }
-    }
 
-
-@Composable
-private fun Notes(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) {
-    for (noteNum in 0 until musicSettings.numOfNotes) {
-        Note(
-            modifier = modifier
-                .height(55.dp)
-                .offset(y = (12).dp), note = musicSettings[noteNum]
+        Box(
+            Modifier
+                .size(ScreenSettings.dotSize)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.onBackground)
+                .layoutId("dot")
         )
     }
-}
 
 /**
  * Represents and holds note value
  */
 @Composable
-private fun Note(modifier: Modifier = Modifier, note: PersistentNote) {
+private fun Note(modifier: Modifier = Modifier, note: PersistentNote, color: Color) {
     Column {
         Image(
             painterResource(id = note.noteImage),
@@ -206,7 +214,7 @@ private fun Note(modifier: Modifier = Modifier, note: PersistentNote) {
                     }
                 },
             contentDescription = "Note",
-            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
+            colorFilter = ColorFilter.tint(color = color),
         )
 
         val image = when (note.level) {
@@ -217,10 +225,10 @@ private fun Note(modifier: Modifier = Modifier, note: PersistentNote) {
         Image(
             painterResource(image),
             modifier = modifier
-                .scale(0.9f)
-                .offset(y = (-16).dp),
+                .scale(1.1f)
+                .offset(x = 8.dp, y = (-16).dp),
             contentDescription = "Accent",
-            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
+            colorFilter = ColorFilter.tint(color = color),
         )
     }
 }

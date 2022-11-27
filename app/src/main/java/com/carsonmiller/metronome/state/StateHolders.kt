@@ -85,6 +85,7 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
     private val denominatorString = "denominator $index"
     private val bpmString = "bpm $index"
     private val subdivisionString = "subdivision $index"
+    private val currentNoteString = "currentNote $index"
 
     /* backing fields */
     private var _numerator: Int by mutableStateOf(
@@ -98,6 +99,9 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
     )
     private var _subdivision: Int by mutableStateOf(
         get(subdivisionString, 1)
+    )
+    private var _currentNote: Int by mutableStateOf(
+        get(currentNoteString, 0)
     )
 
     var numerator: Int
@@ -136,6 +140,16 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
             _subdivision = when {
                 value < 1 -> put(1, subdivisionString)
                 else -> put(value, subdivisionString)
+            }
+        }
+
+    var currentNote: Int
+        get() = _currentNote
+        set(value) {
+            _currentNote = when {
+                value < 0 -> put(0, currentNoteString)
+                value > numOfNotes - 1 -> put(numOfNotes - 1, currentNoteString)
+                else -> value
             }
         }
 
@@ -295,6 +309,7 @@ class PersistentAppSettings(activity: Activity) : Persist(activity) {
     /* strings for sharedPref */
     private val timeSignatureExpandedString = "timeSignatureExpanded"
     private val currentMusicSettingsString = "currentMusicSettings"
+    private val playingString = "playing"
 
     /* backing fields */
     private var _timeSignatureExpanded: Boolean by mutableStateOf(
@@ -302,6 +317,9 @@ class PersistentAppSettings(activity: Activity) : Persist(activity) {
     )
     private var _currentMusicSettings: Int by mutableStateOf(
         get(currentMusicSettingsString, 0)
+    )
+    private var _playing: Boolean by mutableStateOf(
+        get(playingString, false)
     )
 
     var timeSignatureExpanded: Boolean
@@ -317,6 +335,12 @@ class PersistentAppSettings(activity: Activity) : Persist(activity) {
                 value < 0 -> put(0, currentMusicSettingsString)
                 else -> put(value, currentMusicSettingsString)
             }
+        }
+
+    var playing: Boolean
+        get() = _playing
+        set(value) {
+            _playing = value
         }
 
     override fun reset() {
@@ -339,10 +363,12 @@ class ScreenSettings {
         val containerMargins: Dp = 20.dp
 
         /* container heights */
-        val headerContainerHeight: Dp = 140.dp
+        val headerContainerHeight: Dp = 160.dp
         val buttonContainerHeight: Dp = 80.dp
         val smallButtonContainerHeight: Dp = 25.dp
         val settingsContainerHeight: Dp = 400.dp
         val subdivisionSliderButtonHeight = 50.dp
+
+        val dotSize = 12.dp
     }
 }

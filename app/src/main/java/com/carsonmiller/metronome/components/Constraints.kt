@@ -120,8 +120,34 @@ fun motionHeaderConstraint(maxWidth: Float, expanded: Boolean): ConstraintSet {
 
 fun settingsPageConstraint() = ConstraintSet {
     val subdivisionSlider = createRefFor("subdivisionSlider")
+    val tapBPMButton = createRefFor("tapBPMButton")
 
     constrain(subdivisionSlider) {
-        top.linkTo(parent.top, margin = -ScreenSettings.settingsContainerHeight / 2)
+        top.linkTo(parent.top)
+    }
+    constrain(tapBPMButton) {
+        bottom.linkTo(parent.bottom)
+    }
+}
+
+fun sheetConstraints(currentNote: Int) = ConstraintSet {
+    val notes = createRefFor("notes")
+    val tripletIndicators = createRefFor("tripletIndicators")
+    val dot = createRefFor("dot")
+
+    val noteDistance = (55 * 1.003).dp
+    val startDistance = (21.1).dp
+
+    constrain(notes) {
+        centerVerticallyTo(parent, 1f)
+    }
+
+    constrain(tripletIndicators) {
+        bottom.linkTo(notes.top, (-50).dp)
+    }
+
+    constrain(dot) {
+        top.linkTo(notes.bottom, (-20).dp)
+        start.linkTo(parent.start, startDistance + noteDistance * currentNote)
     }
 }

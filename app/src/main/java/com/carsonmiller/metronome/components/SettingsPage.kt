@@ -1,6 +1,7 @@
 package com.carsonmiller.metronome.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.MaterialTheme
@@ -16,8 +17,8 @@ import com.carsonmiller.metronome.state.ScreenSettings
 
 @Composable
 fun SettingsPage(modifier: Modifier = Modifier, musicSegmentState: PersistentMusicSegment) = ConstraintLayout(
-    settingsPageConstraint(),
-    modifier = modifier
+    modifier = modifier.fillMaxSize(),
+    constraintSet = settingsPageConstraint(),
 ) {
     TabRow(
         modifier = Modifier
@@ -39,4 +40,23 @@ fun SettingsPage(modifier: Modifier = Modifier, musicSegmentState: PersistentMus
             ) {}
         }
     }
+
+    //variable is here because it shouldn't be remembered in hard drive
+    var tap: Long by remember { mutableStateOf(-1)}
+
+    Button(modifier = Modifier
+        .size(ScreenSettings.buttonContainerHeight)
+        .padding(ScreenSettings.innerPadding)
+        .layoutId("tapBPMButton"),
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.inversePrimary),
+        elevation = null,
+        onClick = {
+            val currentTime = System.currentTimeMillis()
+            val interval = currentTime - tap
+            if(interval <= 10000)
+                musicSegmentState.bpm = (60000 / interval).toInt() //converts to bpm (min of 6 bpm)
+            tap = System.currentTimeMillis()
+        }) {}
+
 }

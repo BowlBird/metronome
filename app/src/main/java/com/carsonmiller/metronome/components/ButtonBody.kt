@@ -9,11 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.carsonmiller.metronome.state.PersistentAppSettings
 import com.carsonmiller.metronome.state.PersistentMusicSegment
 import com.carsonmiller.metronome.state.ScreenSettings
 
 @Composable
-fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSegment) = Row(
+fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSegment, appSettings: PersistentAppSettings) = Row(
     modifier = modifier.padding(5.dp), horizontalArrangement = Arrangement.Center
 ) {
     val buttonSize = 50.dp
@@ -28,7 +29,7 @@ fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSegment) 
         settings.bpm -= 1
     }, contents = {}, isHoldable = true)
     MusicButton(modifier = buttonModifier(buttonSize * 1.2f), onClick = {
-        settings.numerator -= 0
+        appSettings.playing = !appSettings.playing
     }, contents = {}, isHoldable = false)
     MusicButton(modifier = buttonModifier(buttonSize), onClick = {
         settings.bpm += 1
