@@ -13,32 +13,84 @@ enum class NoteIntensity {
 }
 
 enum class NoteType {
-    WholeNote {override val drawable = R.drawable.ic_whole_note},
-    HalfNote {override val drawable = R.drawable.ic_half_note},
-    QuarterNote {override val drawable = R.drawable.ic_quarter_note},
-    EighthNoteBackConnected {override val drawable = R.drawable.ic_eighth_note_back_connected},
-    EighthNoteFrontConnected {override val drawable = R.drawable.ic_eighth_note_front_connected},
-    EighthNoteBothConnected {override val drawable = R.drawable.ic_eighth_note_both_connected},
-    SixteenthNoteBackConnected {override val drawable = R.drawable.ic_sixteenth_note_back_connected},
-    SixteenthNoteFrontConnected {override val drawable = R.drawable.ic_sixteenth_note_front_connected},
-    SixteenthNoteBothConnected {override val drawable = R.drawable.ic_sixteenth_note_both_connected},
-    ThirtySecondNoteBackConnected {override val drawable = R.drawable.ic_thirty_second_note_back_connected},
-    ThirtySecondNoteFrontConnected {override val drawable = R.drawable.ic_thirty_second_note_front_connected},
-    ThirtySecondNoteBothConnected {override val drawable = R.drawable.ic_thirty_second_note_both_connected},
-    SixtyFourthNoteBackConnected {override val drawable = R.drawable.ic_sixty_fourth_note_back_connected},
-    SixtyFourthNoteFrontConnected {override val drawable = R.drawable.ic_sixty_fourth_note_front_connected},
-    SixtyFourthNoteBothConnected {override val drawable = R.drawable.ic_sixty_fourth_note_both_connected},
-    OneHundredTwentyEighthNoteBackConnected {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_back_connected},
-    OneHundredTwentyEighthNoteFrontConnected {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_front_connected},
-    OneHundredTwentyEighthNoteBothConnected {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected},
-    WholeRest {override val drawable = R.drawable.ic_whole_rest},
-    HalfRest {override val drawable = R.drawable.ic_half_rest},
-    QuarterRest {override val drawable = R.drawable.ic_quarter_rest},
-    EighthRest {override val drawable = R.drawable.ic_eighth_rest},
-    SixteenthRest {override val drawable = R.drawable.ic_sixteenth_rest},
-    ThirtySecondRest {override val drawable = R.drawable.ic_thirty_second_rest},
-    SixtyFourthRest {override val drawable = R.drawable.ic_sixty_fourth_rest},
-    OneHundredTwentyEighthRest {override val drawable = R.drawable.ic_one_hundred_twenty_eighth_rest};
+    WholeNote {
+        override val drawable = R.drawable.ic_whole_note
+    },
+    HalfNote {
+        override val drawable = R.drawable.ic_half_note
+    },
+    QuarterNote {
+        override val drawable = R.drawable.ic_quarter_note
+    },
+    EighthNoteBackConnected {
+        override val drawable = R.drawable.ic_eighth_note_back_connected
+    },
+    EighthNoteFrontConnected {
+        override val drawable = R.drawable.ic_eighth_note_front_connected
+    },
+    EighthNoteBothConnected {
+        override val drawable = R.drawable.ic_eighth_note_both_connected
+    },
+    SixteenthNoteBackConnected {
+        override val drawable = R.drawable.ic_sixteenth_note_back_connected
+    },
+    SixteenthNoteFrontConnected {
+        override val drawable = R.drawable.ic_sixteenth_note_front_connected
+    },
+    SixteenthNoteBothConnected {
+        override val drawable = R.drawable.ic_sixteenth_note_both_connected
+    },
+    ThirtySecondNoteBackConnected {
+        override val drawable = R.drawable.ic_thirty_second_note_back_connected
+    },
+    ThirtySecondNoteFrontConnected {
+        override val drawable = R.drawable.ic_thirty_second_note_front_connected
+    },
+    ThirtySecondNoteBothConnected {
+        override val drawable = R.drawable.ic_thirty_second_note_both_connected
+    },
+    SixtyFourthNoteBackConnected {
+        override val drawable = R.drawable.ic_sixty_fourth_note_back_connected
+    },
+    SixtyFourthNoteFrontConnected {
+        override val drawable = R.drawable.ic_sixty_fourth_note_front_connected
+    },
+    SixtyFourthNoteBothConnected {
+        override val drawable = R.drawable.ic_sixty_fourth_note_both_connected
+    },
+    OneHundredTwentyEighthNoteBackConnected {
+        override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_back_connected
+    },
+    OneHundredTwentyEighthNoteFrontConnected {
+        override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_front_connected
+    },
+    OneHundredTwentyEighthNoteBothConnected {
+        override val drawable = R.drawable.ic_one_hundred_twenty_eighth_note_both_connected
+    },
+    WholeRest {
+        override val drawable = R.drawable.ic_whole_rest
+    },
+    HalfRest {
+        override val drawable = R.drawable.ic_half_rest
+    },
+    QuarterRest {
+        override val drawable = R.drawable.ic_quarter_rest
+    },
+    EighthRest {
+        override val drawable = R.drawable.ic_eighth_rest
+    },
+    SixteenthRest {
+        override val drawable = R.drawable.ic_sixteenth_rest
+    },
+    ThirtySecondRest {
+        override val drawable = R.drawable.ic_thirty_second_rest
+    },
+    SixtyFourthRest {
+        override val drawable = R.drawable.ic_sixty_fourth_rest
+    },
+    OneHundredTwentyEighthRest {
+        override val drawable = R.drawable.ic_one_hundred_twenty_eighth_rest
+    };
 
     abstract val drawable: Int
 }
@@ -49,6 +101,7 @@ class PersistentNote(musicSettingsIndex: Int, noteIndex: Int, activity: Activity
     /* strings for sharedPref */
     private val levelString = "level $musicSettingsIndex $noteIndex"
     private val noteImageString = "note $musicSettingsIndex $noteIndex"
+    private val accentImageString = "accent $musicSettingsIndex $noteIndex"
 
     /* backing fields */
     private var _level: NoteIntensity by mutableStateOf(
@@ -56,6 +109,9 @@ class PersistentNote(musicSettingsIndex: Int, noteIndex: Int, activity: Activity
     )
     private var _noteImage: Int by mutableStateOf(
         get(noteImageString, NoteType.QuarterNote.drawable)
+    )
+    private var _accentImage: Int by mutableStateOf(
+        get(accentImageString, R.drawable.ic_blank)
     )
 
     var level: NoteIntensity
@@ -67,7 +123,13 @@ class PersistentNote(musicSettingsIndex: Int, noteIndex: Int, activity: Activity
     var noteImage: Int
         get() = _noteImage
         set(value) {
-            _noteImage = value
+            _noteImage = put(value, noteImageString)
+        }
+
+    var accentImage: Int
+        get() = _accentImage
+        set(value) {
+            _accentImage = put(value, accentImageString)
         }
 
     override fun reset() {
@@ -79,13 +141,16 @@ class PersistentNote(musicSettingsIndex: Int, noteIndex: Int, activity: Activity
 /**
  * holder for settings
  */
-class PersistentMusicSegment(private val activity: Activity, private val index: Int) : Persist(activity) {
+class PersistentMusicSegment(private val activity: Activity, val index: Int) :
+    Persist(activity) {
+
     /* strings for sharedPref */
     private val numeratorString = "numerator $index"
     private val denominatorString = "denominator $index"
     private val bpmString = "bpm $index"
     private val subdivisionString = "subdivision $index"
     private val currentNoteString = "currentNote $index"
+    private val subdivBPMString = "subdivBPM $index"
 
     /* backing fields */
     private var _numerator: Int by mutableStateOf(
@@ -100,8 +165,13 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
     private var _subdivision: Int by mutableStateOf(
         get(subdivisionString, 1)
     )
-    private var _currentNote: Int by mutableStateOf(
-        get(currentNoteString, 0)
+//    private var _currentNote: Int by mutableStateOf(
+//        get(currentNoteString, 0)
+//    )
+    private var _currentNote: Int by mutableStateOf(0) //don't want it to be saved
+
+    private var _subdivBPM: Int by mutableStateOf(
+        get(subdivBPMString, 100)
     )
 
     var numerator: Int
@@ -112,6 +182,7 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
                 value > 99 -> put(99, numeratorString)
                 else -> put(value, numeratorString)
             }
+            updateAllNoteImages()
         }
 
     var denominator: Int
@@ -122,6 +193,7 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
                 value > 32 -> put(32, denominatorString)
                 else -> put(value, denominatorString)
             }
+            updateAllNoteImages()
         }
 
     var bpm: Int
@@ -132,6 +204,19 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
                 value > 999 -> put(999, bpmString)
                 else -> put(value, bpmString)
             }
+            subdivBPM = bpm * when (subdivision) {
+                1 -> 1
+                2 -> 2
+                3 -> 2
+                4 -> 4
+                else -> throw Exception("This subdivision doesn't exist!")
+            }
+        }
+
+    var subdivBPM: Int
+        get() = _subdivBPM
+        private set(value) {
+           _subdivBPM = value
         }
 
     var subdivision: Int
@@ -141,14 +226,22 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
                 value < 1 -> put(1, subdivisionString)
                 else -> put(value, subdivisionString)
             }
+            subdivBPM = bpm * when (subdivision) {
+                1 -> 1
+                2 -> 2
+                3 -> 2
+                4 -> 4
+                else -> throw Exception("This subdivision doesn't exist!")
+            }
+            updateAllNoteImages()
         }
 
     var currentNote: Int
         get() = _currentNote
         set(value) {
             _currentNote = when {
-                value < 0 -> put(0, currentNoteString)
-                value > numOfNotes - 1 -> put(numOfNotes - 1, currentNoteString)
+                value < 0 -> 0
+                value > numOfNotes - 1 -> numOfNotes - 1
                 else -> value
             }
         }
@@ -156,81 +249,109 @@ class PersistentMusicSegment(private val activity: Activity, private val index: 
     val numOfNotes: Int
         get() = subdivision * numerator
 
-    operator fun get(i: Int): PersistentNote {
-        fun connection(i: Int, numOfNotes: Int, groupSize: Int = (denominator * subdivision) / 4): Int {
-            fun distanceFromRest(i: Int):Int {
-                for(j in i downTo 0) {
-                    if(PersistentNote(index, j, activity).level == NoteIntensity.Rest)
+    fun get(i: Int) = PersistentNote(index, i, activity)
+
+    private fun getNoteImage(index: Int, level: NoteIntensity): Int {
+        fun connection(
+            i: Int,
+            numOfNotes: Int,
+            groupSize: Int = (denominator * subdivision) / 4
+        ): Int {
+            fun distanceFromRest(i: Int): Int {
+                for (j in i downTo 0) {
+                    if (PersistentNote(this.index, j, activity).level == NoteIntensity.Rest)
                         return i - j
                 }
                 return i - groupSize + 1
             }
-            return if(groupSize % 3 != 0) when {
+            val restDist = distanceFromRest(i)
+            return if (groupSize % 3 != 0) when {
                 i == 0 -> 2
-                distanceFromRest(i) % groupSize == 1 -> 2
-                distanceFromRest(i) % groupSize == 0 -> 0
-                PersistentNote(index, i + 1, activity).level == NoteIntensity.Rest -> 0
+                restDist % groupSize == 1 -> 2
+                restDist % groupSize == 0 -> 0
+                get( i + 1).level == NoteIntensity.Rest -> 0
                 i == numOfNotes - 1 -> 0
                 else -> 1
             } else when {
                 i == 0 -> 2
-                distanceFromRest(i) == 1 -> 2
-                distanceFromRest(i) == 0 -> 0
-                PersistentNote(index, i + 1, activity).level == NoteIntensity.Rest &&  i % 3 != 0 -> 0
+                restDist == 1 -> 2
+                restDist == 0 -> 0
+                PersistentNote(
+                    index,
+                    i + 1,
+                    activity
+                ).level == NoteIntensity.Rest && i % 3 != 0 -> 0
                 i % 3 == 0 -> 2
-                i % 3 == 2  && distanceFromRest(i) != 1 -> 0
+                i % 3 == 2 && restDist != 1 -> 0
                 i == numOfNotes - 1 -> 0
                 else -> 1
             }
         }
-        require(i in 0 until numOfNotes)
-        val note = PersistentNote(index, i, activity)
-        note.noteImage =
-            if(note.level == NoteIntensity.Rest)
-                when (denominator * subdivision) {
-                    1 -> NoteType.WholeRest.drawable
-                    2,3 -> NoteType.HalfRest.drawable
-                    4,6 -> NoteType.QuarterRest.drawable
-                    8,12 -> NoteType.EighthRest.drawable
-                    16,24 -> NoteType.SixteenthRest.drawable
-                    32,48 -> NoteType.ThirtySecondRest.drawable
-                    64,96 -> NoteType.SixtyFourthRest.drawable
-                    128 -> NoteType.OneHundredTwentyEighthRest.drawable
-                    else -> throw Exception("This denominator doesn't exist!")
+        require(index in 0 until numOfNotes)
+        return if (level == NoteIntensity.Rest)
+            when (denominator * subdivision) {
+                1 -> NoteType.WholeRest.drawable
+                2, 3 -> NoteType.HalfRest.drawable
+                4, 6 -> NoteType.QuarterRest.drawable
+                8, 12 -> NoteType.EighthRest.drawable
+                16, 24 -> NoteType.SixteenthRest.drawable
+                32, 48 -> NoteType.ThirtySecondRest.drawable
+                64, 96 -> NoteType.SixtyFourthRest.drawable
+                128 -> NoteType.OneHundredTwentyEighthRest.drawable
+                else -> throw Exception("This denominator doesn't exist!")
+            }
+        else {
+            val connection = connection(index, numOfNotes)
+            when (denominator * subdivision) {
+                1 -> NoteType.WholeNote.drawable
+                2, 3 -> NoteType.HalfNote.drawable
+                4, 6 -> NoteType.QuarterNote.drawable
+                8, 12 -> when (connection) {
+                    0 -> NoteType.EighthNoteFrontConnected.drawable
+                    1 -> NoteType.EighthNoteBothConnected.drawable
+                    else -> NoteType.EighthNoteBackConnected.drawable
                 }
-            else
-                when (denominator * subdivision) {
-            1 -> NoteType.WholeNote.drawable
-            2,3 -> NoteType.HalfNote.drawable
-            4,6 -> NoteType.QuarterNote.drawable
-            8,12 -> when (connection(i, numOfNotes)) {
-                0 -> NoteType.EighthNoteFrontConnected.drawable
-                1 -> NoteType.EighthNoteBothConnected.drawable
-                else -> NoteType.EighthNoteBackConnected.drawable
+                16, 24 -> when (connection) {
+                    0 -> NoteType.SixteenthNoteFrontConnected.drawable
+                    1 -> NoteType.SixteenthNoteBothConnected.drawable
+                    else -> NoteType.SixteenthNoteBackConnected.drawable
+                }
+                32, 48 -> when (connection) {
+                    0 -> NoteType.ThirtySecondNoteFrontConnected.drawable
+                    1 -> NoteType.ThirtySecondNoteBothConnected.drawable
+                    else -> NoteType.ThirtySecondNoteBackConnected.drawable
+                }
+                64, 96 -> when (connection) {
+                    0 -> NoteType.SixtyFourthNoteFrontConnected.drawable
+                    1 -> NoteType.SixtyFourthNoteBothConnected.drawable
+                    else -> NoteType.SixtyFourthNoteBackConnected.drawable
+                }
+                128 -> when (connection) {
+                    0 -> NoteType.OneHundredTwentyEighthNoteFrontConnected.drawable
+                    1 -> NoteType.OneHundredTwentyEighthNoteBothConnected.drawable
+                    else -> NoteType.OneHundredTwentyEighthNoteBackConnected.drawable
+                }
+                else -> throw Exception("This denominator doesn't exist!")
             }
-            16,24 -> when (connection(i, numOfNotes)) {
-                0 -> NoteType.SixteenthNoteFrontConnected.drawable
-                1 -> NoteType.SixteenthNoteBothConnected.drawable
-                else -> NoteType.SixteenthNoteBackConnected.drawable
-            }
-            32,48 -> when (connection(i, numOfNotes)) {
-                0 -> NoteType.ThirtySecondNoteFrontConnected.drawable
-                1 -> NoteType.ThirtySecondNoteBothConnected.drawable
-                else -> NoteType.ThirtySecondNoteBackConnected.drawable
-            }
-            64,96 -> when (connection(i, numOfNotes)) {
-                0 -> NoteType.SixtyFourthNoteFrontConnected.drawable
-                1 -> NoteType.SixtyFourthNoteBothConnected.drawable
-                else -> NoteType.SixtyFourthNoteBackConnected.drawable
-            }
-            128 -> when (connection(i, numOfNotes)) {
-                0 -> NoteType.OneHundredTwentyEighthNoteFrontConnected.drawable
-                1 -> NoteType.OneHundredTwentyEighthNoteBothConnected.drawable
-                else -> NoteType.OneHundredTwentyEighthNoteBackConnected.drawable
-            }
-            else -> throw Exception("This denominator doesn't exist!")
         }
-        return note
+    }
+
+    fun updateNoteImage(i: Int) {
+        if(i == 1)
+            print("")
+        val note = PersistentNote(index, i, activity)
+        note.noteImage = getNoteImage(i, note.level)
+        note.accentImage = when (note.level) {
+            NoteIntensity.Loud -> R.drawable.ic_accent
+            NoteIntensity.Quiet -> R.drawable.ic_soft
+            else -> R.drawable.ic_blank
+        }
+    }
+
+    fun updateAllNoteImages() {
+        for(i in 0 until numOfNotes) {
+            updateNoteImage(i)
+        }
     }
 
     override fun reset() {
@@ -365,7 +486,7 @@ class ScreenSettings {
         /* container heights */
         val headerContainerHeight: Dp = 160.dp
         val buttonContainerHeight: Dp = 80.dp
-        val smallButtonContainerHeight: Dp = 25.dp
+        val smallButtonContainerHeight: Dp = 35.dp
         val settingsContainerHeight: Dp = 400.dp
         val subdivisionSliderButtonHeight = 50.dp
 

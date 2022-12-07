@@ -1,6 +1,5 @@
 package com.carsonmiller.metronome.components
 
-import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -9,286 +8,202 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.constraintlayout.compose.ConstraintSet
-import androidx.constraintlayout.compose.ExperimentalMotionApi
-import androidx.constraintlayout.compose.MotionLayout
-import com.carsonmiller.metronome.*
 import com.carsonmiller.metronome.R
-import com.carsonmiller.metronome.ui.theme.musicFont
-import kotlin.math.round
 import com.carsonmiller.metronome.state.*
+import kotlin.math.max
 
-
-@OptIn(ExperimentalMotionApi::class)
 @Composable
 fun HeaderBody(
     modifier: Modifier = Modifier,
-    numerator: Int,
-    denominator: Int,
-    appSettings: PersistentAppSettings,
-    musicSettings: PersistentMusicSegment
-) {
-    val variableFloat = round(
-        animateFloatAsState(
-            if (appSettings.timeSignatureExpanded) 1f else 0f, tween(300), .3f
-        ).value * 100
-    ) / 100
-
-    val maxWidth = LocalConfiguration.current.screenWidthDp.toFloat()
-    MotionLayout(remember { motionHeaderConstraint(maxWidth, false) },
-        remember { motionHeaderConstraint(maxWidth, true) },
-        progress = variableFloat,
-        modifier = modifier
-    ) {
-        TimeSignatureContainer(
-            Modifier
-                .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
-                .background(color = MaterialTheme.colorScheme.inversePrimary)
-                .clickable {
-                    appSettings.timeSignatureExpanded = !appSettings.timeSignatureExpanded
-                }
-                .layoutId("timeSignatureContainer"),
-            animationProgress = variableFloat,
-            musicSettings = musicSettings,
-            numerator = numerator,
-            denominator = denominator)
-
-        //Notes and Music Bar Holder
-        MusicStaffContainer(
-            modifier = Modifier
-                .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
-                .background(color = MaterialTheme.colorScheme.inversePrimary)
-                .layoutId("noteContainer"), musicSettings = musicSettings
-        )
-    }
-}
-
-@OptIn(ExperimentalMotionApi::class)
-@Composable
-private fun TimeSignatureContainer(
-    modifier: Modifier = Modifier,
-    animationProgress: Float,
     musicSettings: PersistentMusicSegment,
-    numerator: Int,
-    denominator: Int
 ) {
-    //holds and contains logic for time signature
-    MotionLayout(remember { motionTimeSignatureConstraint(false) },
-        remember { motionTimeSignatureConstraint(true) },
-        progress = animationProgress,
+    ConstraintLayout(
+        constraintSet = remember {headerConstraint()},
         modifier = modifier
     ) {
-        TimeSignature(
+        Sheet(
             modifier = Modifier
-                .offset(y = 20.dp)
-                .layoutId("timeSignature"),
-            numerator = numerator,
-            denominator = denominator,
-            fontSize = 85
-        )
-        val buttonColor =
-            ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                .padding(start = ScreenSettings.innerPadding, end = ScreenSettings.innerPadding)
+                .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
+                .background(color = MaterialTheme.colorScheme.inversePrimary)
+                .layoutId("sheet"),
+            musicSettings = musicSettings)
 
-        @Composable
-        fun SmallButton(
-            layoutId: String, contents: @Composable () -> Unit, onClick: () -> Unit
-        ) = MusicButton(
+        Bar(
             modifier = Modifier
-                .size(ScreenSettings.smallButtonContainerHeight)
-                .layoutId(layoutId),
-            isHoldable = true,
-            contents = contents,
-            onClick = onClick,
-            colors = buttonColor
-        )
-        SmallButton("topLeft", onClick = { musicSettings.numerator -= 1 }, contents = {})
-        SmallButton("topRight", onClick = { musicSettings.numerator += 1 }, contents = {})
-        SmallButton("bottomLeft", onClick = { musicSettings.denominator /= 2 }, contents = {})
-        SmallButton("bottomRight", onClick = { musicSettings.denominator *= 2 }, contents = {})
+                .padding(start = ScreenSettings.innerPadding, end = ScreenSettings.innerPadding)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(ScreenSettings.innerPadding))
+                .layoutId("bar"),
+            currentNote = musicSettings.currentNote,
+            numOfNotes = musicSettings.numOfNotes)
     }
 }
 
 @Composable
-private fun MusicStaffContainer(
-    modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment
-) = Box(
-    modifier = modifier
-) {
-    //music bar (doesn't actually move)
-    MusicBar(
-        modifier = Modifier
-            .fillMaxWidth()
-            .offset(y = 20.dp)//hardcoded value for alignment
+fun Bar(modifier: Modifier = Modifier, currentNote: Int, numOfNotes: Int) {
+    val progress = animateFloatAsState(
+        targetValue = currentNote / numOfNotes.toFloat(),
+        animationSpec = tween(0)
     )
-    //row
-    HorizontalScrollContainer(
-        modifier = Modifier.fillMaxHeight()
+    LinearProgressIndicator(
+        progress = progress.value,
+        modifier = modifier,
+        trackColor = MaterialTheme.colorScheme.inversePrimary,
+        color = MaterialTheme.colorScheme.primary
+    )
+}
 
+
+@Composable
+fun Sheet(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
     ) {
-        Contents(musicSettings = musicSettings)
+        Image(
+            modifier = Modifier
+                .height(100.dp)
+                .scale(scaleX = 1000f, scaleY = 1f)
+                .offset(y = (36).dp),
+            painter = painterResource(id = R.drawable.ic_music_staff),
+            contentDescription = "Music Bar",
+            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
+        )
+        LazyRow(
+            modifier = Modifier
+        ) {
+            item {
+                Contents(modifier = Modifier.height(125.dp), musicSettings = musicSettings)
+            }
+        }
+    }
+}
+
+
+
+@Composable
+private fun Contents(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) {
+    val size = 45
+    ConstraintLayout(
+        constraintSet = remember { sheetConstraint() },
+        modifier = modifier
+            .width((size * (musicSettings.numOfNotes + 1)).dp)
+    ) {
+        TripletIndicators(
+            Modifier
+                .layoutId("tripletIndicators"),
+            musicSettings = musicSettings,
+            size = size
+        )
+        Notes(
+            Modifier
+                .layoutId("notes"),
+            musicSettings = musicSettings,
+            size = size
+        )
     }
 }
 
 @Composable
-private fun Contents(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) =
-    ConstraintLayout(
-        constraintSet = sheetConstraints(musicSettings.currentNote),
-        modifier = modifier.width((55 * (musicSettings.numOfNotes + 1)).dp),
-    ) {
-        val scrollState = rememberLazyListState()
-        LazyRow(
-            Modifier.layoutId("tripletIndicators"),
-            scrollState,
-            userScrollEnabled = false) {
-            items(musicSettings.numOfNotes / 3) {
-                Image(
-                    painterResource(id = R.drawable.ic_triplet_indicator),
-                    modifier = modifier.size(((55 * 3) * 1.002).dp),
-                    contentDescription = "triplet indicator",
-                    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
-                    alpha = if (musicSettings.subdivision == 3) 1f else 0f
-                )
-            }
-
-        }
-
-        LazyRow(Modifier.layoutId("notes"), scrollState,userScrollEnabled = false) {
-            items(musicSettings.numOfNotes) { noteNum ->
-                Note(
-                    modifier = modifier
-                        .height(55.dp)
-                        .offset(y = (12).dp),
-                    note = musicSettings[noteNum],
-                    color = if (noteNum % musicSettings.subdivision == 0) MaterialTheme.colorScheme.onBackground
-                    else MaterialTheme.colorScheme.secondary
-                )
-            }
-        }
-
-        Box(
-            Modifier
-                .size(ScreenSettings.dotSize)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.onBackground)
-                .layoutId("dot")
+private fun TripletIndicators(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment, size: Int) = LazyRow(
+    modifier,
+    userScrollEnabled = false) {
+    items(max(musicSettings.numOfNotes / 3,1)) {
+        Image(
+            painterResource(id = R.drawable.ic_triplet_indicator),
+            modifier = Modifier.size(((size * 3) * 1.002).dp),
+            contentDescription = "triplet indicator",
+            colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
+            alpha = if (musicSettings.subdivision == 3) 1f else 0f
         )
     }
+
+}
+
+@Composable
+private fun Notes(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment, size: Int) {
+    LazyRow(
+        modifier,
+        userScrollEnabled = false,
+    ) {
+        items(musicSettings.numOfNotes) { noteNum ->
+            val note = musicSettings.get(noteNum)
+            Note(
+                modifier = Modifier
+                    .height(size.dp)
+                    .offset(y = (12).dp),
+                noteLevel = note.level,
+                noteImage = note.noteImage,
+                accentImage = note.accentImage,
+                note = note,
+                //musicSettings = musicSettings,
+                index = noteNum,
+                color = if (noteNum % musicSettings.subdivision == 0) MaterialTheme.colorScheme.onBackground
+                else MaterialTheme.colorScheme.secondary
+            )
+        }
+    }
+}
 
 /**
  * Represents and holds note value
  */
 @Composable
-private fun Note(modifier: Modifier = Modifier, note: PersistentNote, color: Color) {
+private fun Note(
+    modifier: Modifier = Modifier,
+    noteLevel: NoteIntensity,
+    noteImage: Int,
+    accentImage: Int,
+    note: PersistentNote,
+    //musicSettings: PersistentMusicSegment,
+    index: Int,
+    color: Color) {
     Column {
         Image(
-            painterResource(id = note.noteImage),
             modifier = modifier
                 .scale(1.004f) //hardcoded values for alignment
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() }, indication = null
-                ) {
-                    note.level = when (note.level) {
-                        NoteIntensity.Rest -> NoteIntensity.Quiet
-                        NoteIntensity.Quiet -> NoteIntensity.Normal
-                        NoteIntensity.Normal -> NoteIntensity.Loud
-                        NoteIntensity.Loud -> NoteIntensity.Rest
-                    }
-                },
+//                .clickable(
+//                    interactionSource = remember { MutableInteractionSource() }, indication = null
+//                ) {
+//                    note.level = when (noteLevel) {
+//                        NoteIntensity.Rest -> NoteIntensity.Quiet
+//                        NoteIntensity.Quiet -> NoteIntensity.Normal
+//                        NoteIntensity.Normal -> NoteIntensity.Loud
+//                        NoteIntensity.Loud -> NoteIntensity.Rest
+//                    }
+//
+//                    //this sucks but it successfully redraws everything so :3
+//                    val denominator = musicSettings.denominator
+//                    musicSettings.denominator = 3
+//                    musicSettings.denominator = denominator
+//                },
+            ,painter = painterResource(id = noteImage),
             contentDescription = "Note",
             colorFilter = ColorFilter.tint(color = color),
         )
-
-        val image = when (note.level) {
-            NoteIntensity.Loud -> R.drawable.ic_accent
-            NoteIntensity.Quiet -> R.drawable.ic_soft
-            else -> R.drawable.ic_blank
-        }
         Image(
-            painterResource(image),
+            painterResource(accentImage),
             modifier = modifier
-                .scale(1.1f)
-                .offset(x = 8.dp, y = (-16).dp),
+                .align(Alignment.CenterHorizontally)
+                .offset(y = (-16).dp),
             contentDescription = "Accent",
             colorFilter = ColorFilter.tint(color = color),
         )
     }
 }
-
-/**
- * the music bar (basically just an image with controllable x scale)
- */
-@Composable
-private fun MusicBar(modifier: Modifier = Modifier) = Image(
-    painterResource(id = R.drawable.ic_music_staff),
-    modifier = modifier.scale(
-        100f, 1f
-    ), //100 just so it's long enough you'll never see the end of it.
-    contentDescription = "Music Staff",
-    colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground)
-)
-
-/**
- * Time signature with controllable numerator and denominator
- */
-@Composable
-private fun TimeSignature(
-    modifier: Modifier = Modifier,
-    numerator: Int,
-    denominator: Int,
-    fontSize: Int = 70,
-    color: Color = MaterialTheme.colorScheme.onBackground
-) {
-    //makes the font the same size no matter system settings.
-    val spFontSize = with(LocalDensity.current) { (fontSize / fontScale).sp }
-
-    //creates the two numbers
-    ConstraintLayout(
-        timeSignatureConstraint(fontSize), modifier = modifier
-    ) {
-        TimeSignatureNumber(
-            modifier = Modifier.layoutId("topText"),
-            value = numerator,
-            fontSize = spFontSize,
-            color = color
-        ) //numerator
-        TimeSignatureNumber(
-            modifier = Modifier.layoutId("bottomText"),
-            value = denominator,
-            fontSize = spFontSize,
-            color = color
-        ) //denominator
-    }
-}
-
-/**
- * Inner time signature number that is just a wrapper for text
- */
-@Composable
-private fun TimeSignatureNumber(
-    modifier: Modifier = Modifier, value: Int, fontSize: TextUnit, color: Color
-) = Text(
-    text = value.toString(),
-    modifier = modifier,
-    fontFamily = musicFont,
-    fontSize = fontSize,
-    color = color
-)

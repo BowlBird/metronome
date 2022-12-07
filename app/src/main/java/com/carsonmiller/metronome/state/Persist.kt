@@ -24,7 +24,7 @@ abstract class Persist(activity: Activity) {
      * if it doesn't exist, throws exception
      */
     inline fun <reified T> get(key: String, defaultValue: T): T {
-        val returnedValue = sharedPref.getString(key, null) ?: return defaultValue
+        val returnedValue =  sharedPref.getString(key, null) ?: return defaultValue
 
         return when(T::class) {
             Double::class -> returnedValue.toDouble() as T

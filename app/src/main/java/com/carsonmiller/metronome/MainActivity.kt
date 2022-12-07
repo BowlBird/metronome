@@ -11,15 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.carsonmiller.metronome.components.*
 import com.carsonmiller.metronome.ui.theme.MetronomeTheme
 import com.carsonmiller.metronome.state.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,17 +50,17 @@ fun MainLayout(musicSettingsList: PersistentMusicSegmentList, appSettings: Persi
                 .wrapContentSize()
                 .layoutId("bpmText"), bpm = musicSettings.bpm
         )
-
-        //Music staff container
-        HeaderBody(
+        Sheet(
             modifier = Modifier
                 .containerModifier(ScreenSettings.headerContainerHeight)
-                .layoutId("headerBox"),
-            numerator = musicSettings.numerator,
-            denominator = musicSettings.denominator,
-            appSettings = appSettings,
-            musicSettings = musicSettings
+                .layoutId("sheet"),
+            musicSettings = musicSettings,
         )
+        Bar(
+            modifier = Modifier
+                .containerModifier(5.dp)
+                .layoutId("bar"),
+            musicSettings.currentNote, musicSettings.numOfNotes)
 
         //Button container
         ButtonBody(
@@ -80,30 +79,22 @@ fun MainLayout(musicSettingsList: PersistentMusicSegmentList, appSettings: Persi
             { Text("Test2") },
             { Text("Test3") })
 
-        //increments current note if the metronome is playing
-        LaunchedEffect(musicSettings.bpm + musicSettings.subdivision) { //calculation is meaningless, just to make it reset when either value changes
-            val delay = ((60000 / musicSettings.bpm) / when (musicSettings.subdivision) {
-                1 -> 1
-                2 -> 2
-                3 -> 2
-                4 -> 4
-                else -> throw Exception("This subdivision doesn't exist!")
-            }).toLong()
-            while(true) {
-                delay(delay)
-                if (appSettings.playing) {
-                    if (musicSettings.currentNote == musicSettings.numOfNotes - 1) {
-                        musicSettings.currentNote = 0
 
-                        if (musicSettingsList.count - 1 == appSettings.currentMusicSettings)
-                            appSettings.currentMusicSettings = 0
+            //increments current note if the metronome is playing
+            LaunchedEffect(musicSettings.bpm + musicSettings.subdivision) { //calculation is meaningless, just to make it reset when either value changes
+                val delay = (60000f / musicSettings.subdivBPM).toLong()
+                while (true) {
+                    delay(delay)
+                    if (appSettings.playing) {
+                        if (musicSettings.currentNote == musicSettings.numOfNotes - 1) {
+                            musicSettings.currentNote = 0
+
+                            if (musicSettingsList.count - 1 == appSettings.currentMusicSettings)
+                                appSettings.currentMusicSettings = 0
+                        } else
+                            musicSettings.currentNote += 1
                     } else
-                        musicSettings.currentNote += 1
+                        musicSettings.currentNote = 0
                 }
-                else
-                    musicSettings.currentNote = 0
             }
         }
-
-
-    }
