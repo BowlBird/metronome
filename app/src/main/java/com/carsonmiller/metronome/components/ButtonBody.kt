@@ -1,43 +1,36 @@
 package com.carsonmiller.metronome.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import com.carsonmiller.metronome.state.PersistentAppSettings
-import com.carsonmiller.metronome.state.PersistentMusicSegment
 import com.carsonmiller.metronome.state.ScreenSettings
 
 @Composable
-fun ButtonBody(modifier: Modifier = Modifier, settings: PersistentMusicSegment, appSettings: PersistentAppSettings) = Row(
-    modifier = modifier.padding(5.dp), horizontalArrangement = Arrangement.Center
-) {
-    val buttonSize = 50.dp
-    fun buttonModifier(size: Dp) = Modifier
-        .align(Alignment.CenterVertically)
-        .padding(ScreenSettings.innerPadding / 2) //since these objects are right next to each other it would be 20 otherwise
-        .size(size)
-    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
-        settings.bpm = getRoundedMetronomeBPM(settings.bpm, false)
-    }, contents = {}, isHoldable = true)
-    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
-        settings.bpm -= 1
-    }, contents = {}, isHoldable = true)
-    MusicButton(modifier = buttonModifier(buttonSize * 1.2f), onClick = {
-        appSettings.playing = !appSettings.playing
-    }, contents = {}, isHoldable = false)
-    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
-        settings.bpm += 1
-    }, contents = {}, isHoldable = true)
-    MusicButton(modifier = buttonModifier(buttonSize), onClick = {
-        settings.bpm = getRoundedMetronomeBPM(settings.bpm, true)
-    }, contents = {}, isHoldable = true)
-}
+fun ButtonBody(
+    modifier: Modifier = Modifier,
+    decrementRounded: () -> Unit,
+    decrement: () -> Unit,
+    togglePlay: () -> Unit,
+    increment: () -> Unit,
+    incrementRounded: () -> Unit,
+    height: Dp) =
+    RowContainer(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
+        height = height,
+        fillMaxWidth = false,
+    ) {
+        Button(size = ScreenSettings.normalButtonSize, onClick = decrementRounded, contents = { }, isHoldable = true)
+        Button(size = ScreenSettings.normalButtonSize, onClick = decrement, contents = {  }, isHoldable = true)
+        Button(size = ScreenSettings.normalButtonSize * 1.2f, onClick = togglePlay, contents = {  }, isHoldable = false)
+        Button(size = ScreenSettings.normalButtonSize, onClick = increment, contents = {  }, isHoldable = true)
+        Button(size = ScreenSettings.normalButtonSize, onClick = incrementRounded, contents = {}, isHoldable = true)
+    }
 
 /**
  * Returns the next value that appears on physical metronomes
@@ -62,3 +55,17 @@ fun getRoundedMetronomeBPM(bpm: Int, nextValue: Boolean): Int {
     else { bpmSequence.last { it < bpm } }
 }
 
+@Composable
+private fun Button(
+    modifier: Modifier = Modifier,
+    size: Dp, onClick: () -> Unit,
+    contents: @Composable () -> Unit,
+    isHoldable: Boolean) =
+    Button(
+        modifier
+            .padding(ScreenSettings.innerPadding / 2) //since these objects are right next to each other it would be 20 otherwise
+            .size(size),
+        onClick = onClick,
+        contents = contents,
+        isHoldable = isHoldable
+    )

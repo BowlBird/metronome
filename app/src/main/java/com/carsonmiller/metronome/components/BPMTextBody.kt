@@ -1,25 +1,34 @@
 package com.carsonmiller.metronome.components
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
-import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.compose.ui.unit.Dp
+import com.carsonmiller.metronome.state.ScreenSettings
 import com.carsonmiller.metronome.ui.theme.typography
 
 /**
  * Text that shows current bpm
  */
 @Composable
-fun BpmTextBody(modifier: Modifier = Modifier, bpm: Int = 100) {
-    ConstraintLayout(
-        textConstraints(), modifier = modifier
+fun BpmTextBody(modifier: Modifier = Modifier, bpm: Int = 100, height: Dp) {
+    ConstraintContainer(
+        modifier = modifier,
+        constraintSet = textConstraints(),
+        height = height,
+        fillMaxWidth = false
     ) {
         //number
         Text(
-            modifier = Modifier.layoutId("num"),
+            modifier = Modifier
+                .padding(start = ScreenSettings.innerPadding)
+                .layoutId("num"),
             text = "$bpm",
             color = MaterialTheme.colorScheme.onBackground,
             style = typography.labelLarge
@@ -27,7 +36,9 @@ fun BpmTextBody(modifier: Modifier = Modifier, bpm: Int = 100) {
 
         //bpm text
         Text(
-            modifier = Modifier.layoutId("bpmText"),
+            modifier = Modifier
+                .padding(end = ScreenSettings.innerPadding)
+                .layoutId("bpmText"),
             text = "bpm",
             color = MaterialTheme.colorScheme.secondary,
             style = typography.labelLarge,

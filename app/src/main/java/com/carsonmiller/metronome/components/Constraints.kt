@@ -8,33 +8,27 @@ import com.carsonmiller.metronome.state.ScreenSettings
 fun containerConstraints() = ConstraintSet {
 
     val bpmText = createRefFor("bpmText")
-    val header = createRefFor("headerBox")
+    val sheet = createRefFor("sheet")
+    val bar = createRefFor("bar")
     val buttonBox = createRefFor("buttonBox")
     val settingsBox = createRefFor("settingsBox")
 
-    val sheet = createRefFor("sheet")
-    val bar = createRefFor("bar")
-
     constrain(bpmText) {
         end.linkTo(
-            parent.end, margin = ScreenSettings.containerSidePadding * 2
-        ) //*2 for some contrast
-        bottom.linkTo(
-            sheet.top, margin = ScreenSettings.containerMargins / 2 // / 2 to make it closer
+            parent.end, margin = ScreenSettings.containerSidePadding
         )
-    }
-
-    constrain(header) {
-        bottom.linkTo(buttonBox.top, margin = ScreenSettings.containerMargins)
-        centerHorizontallyTo(parent)
-    }
-    constrain(bar) {
-        bottom.linkTo(buttonBox.top, margin = ScreenSettings.containerMargins)
-        centerHorizontallyTo(parent)
+        bottom.linkTo(
+            sheet.top, margin = ScreenSettings.containerMargins
+        )
     }
 
     constrain(sheet) {
         bottom.linkTo(bar.top, margin = ScreenSettings.containerMargins)
+        centerHorizontallyTo(parent)
+    }
+
+    constrain(bar) {
+        bottom.linkTo(buttonBox.top, margin = ScreenSettings.containerMargins)
         centerHorizontallyTo(parent)
     }
 
@@ -55,26 +49,14 @@ fun textConstraints() = ConstraintSet {
     val bpmText = createRefFor("bpmText")
 
     constrain(num) {
+        centerVerticallyTo(parent)
         start.linkTo(parent.start)
         top.linkTo(parent.top)
     }
 
     constrain(bpmText) {
+        centerVerticallyTo(parent)
         start.linkTo(num.end, margin = 5.dp)
-    }
-}
-
-fun headerConstraint() = ConstraintSet {
-    val sheet = createRefFor("sheet")
-    val bar = createRefFor("bar")
-
-    constrain(bar) {
-        bottom.linkTo(parent.bottom, ScreenSettings.innerPadding)
-    }
-
-    constrain(sheet) {
-        bottom.linkTo(bar.top, ScreenSettings.innerPadding)
-        top.linkTo(parent.top, ScreenSettings.innerPadding)
     }
 }
 
@@ -107,6 +89,14 @@ fun sheetConstraint() = ConstraintSet {
     constrain(tripletIndicators) {
         top.linkTo(parent.top)
         bottom.linkTo(notes.top)
+    }
+}
+
+fun sheetBodyConstraint() = ConstraintSet {
+    val bar = createRefFor("bar")
+
+    constrain(bar) {
+        centerVerticallyTo(parent, 0f)
     }
 }
 
@@ -150,6 +140,6 @@ fun timeSignatureConstraint(fontSize: Int) = ConstraintSet {
 
     constrain(denominator) {
         top.linkTo(numerator.top, margin = (fontSize / 2).dp) //math to make it sit on top no matter
-        centerHorizontallyTo(parent, .5f)              //the font size
+        centerHorizontallyTo(parent, .5f)                //the font size
     }
 }

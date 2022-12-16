@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material3.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,12 +17,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import com.carsonmiller.metronome.state.PersistentMusicSegment
+import com.carsonmiller.metronome.state.MusicSheet
 import com.carsonmiller.metronome.state.ScreenSettings
 import com.carsonmiller.metronome.ui.theme.musicFont
 
 @Composable
-fun SettingsPage(modifier: Modifier = Modifier, musicSegmentState: PersistentMusicSegment) = ConstraintLayout(
+fun SettingsPage(modifier: Modifier = Modifier, musicSheet: MusicSheet) = ConstraintLayout(
     modifier = modifier.fillMaxSize(),
     constraintSet = settingsPageConstraint(),
 ) {
@@ -32,28 +31,57 @@ fun SettingsPage(modifier: Modifier = Modifier, musicSegmentState: PersistentMus
             .padding(ScreenSettings.innerPadding)
             .clip(RoundedCornerShape(ScreenSettings.cornerRounding))
             .layoutId("subdivisionSlider"),
-        musicSettings = musicSegmentState)
+        selectedTab = musicSheet.subdivision - 1,
+        setSubdivisions = {i -> musicSheet.subdivision = i})
+
+    //variable is here because it shouldn't be remembered in hard drive
+    var tap: Long by remember { mutableStateOf(-1)}
+
     TapBPM(
         modifier = Modifier
             .size(ScreenSettings.buttonContainerHeight)
             .padding(ScreenSettings.innerPadding)
             .layoutId("tapBPMButton"),
-        musicSettings = musicSegmentState)
+        onTap = remember {{
+                val currentTime = System.currentTimeMillis()
+                val interval = currentTime - tap
+                if(interval <= 10000)
+                    musicSheet.rawBPM = (60000 / interval).toInt() //converts to bpm (min of 6 bpm)
+                tap = System.currentTimeMillis()
+        }})
+
+    val decrementNumerator = remember(musicSheet) {{musicSheet.numerator -= 1}}
+    val incrementNumerator = remember(musicSheet) {{musicSheet.numerator += 1}}
+    val decrementDenominator = remember(musicSheet) {{
+        musicSheet.denominator /= 2
+        val n = musicSheet.numerator
+        musicSheet.numerator = if(n != 1) 1 else 2
+        musicSheet.numerator = n}}
+    val incrementDenominator = remember(musicSheet) {{
+        musicSheet.denominator *= 2
+        val n = musicSheet.numerator
+        musicSheet.numerator = if(n != 1) 1 else 2
+        musicSheet.numerator = n
+    }}
+
     TimeSignatureControl(
         modifier = Modifier
             .layoutId("timeSignature"),
         fontSize = 120,
-        numerator = musicSegmentState.numerator,
-        denominator = musicSegmentState.denominator,
-        musicSettings = musicSegmentState
+        numerator = musicSheet.numerator,
+        denominator = musicSheet.denominator,
+        decrementNumerator = decrementNumerator,
+        incrementNumerator = incrementNumerator,
+        decrementDenominator = decrementDenominator,
+        incrementDenominator = incrementDenominator
     )
 }
 
 @Composable
-private fun Subdivision(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) =
+private fun Subdivision(modifier: Modifier = Modifier, selectedTab: Int, setSubdivisions: (i: Int) -> Unit) =
     TabRow(
         modifier = modifier,
-        selectedTabIndex = musicSettings.subdivision - 1, //minus one because subdivision starts at 1 not 0
+        selectedTabIndex = selectedTab,
         backgroundColor = MaterialTheme.colorScheme.inversePrimary,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
@@ -61,7 +89,7 @@ private fun Subdivision(modifier: Modifier = Modifier, musicSettings: Persistent
             Button(
                 modifier = Modifier
                     .height(ScreenSettings.subdivisionSliderButtonHeight),
-                onClick = { musicSettings.subdivision = it + 1 },
+                onClick = remember {{setSubdivisions(it + 1)}},
                 colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent),
                 shape = RectangleShape,
                 elevation = null
@@ -70,52 +98,32 @@ private fun Subdivision(modifier: Modifier = Modifier, musicSettings: Persistent
     }
 
 @Composable
-private fun TapBPM(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment) {
-    //variable is here because it shouldn't be remembered in hard drive
-    var tap: Long by remember { mutableStateOf(-1)}
-
+private fun TapBPM(modifier: Modifier = Modifier, onTap: () -> Unit) {
     Button(modifier = modifier,
         shape = CircleShape,
         colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colorScheme.inversePrimary),
         elevation = null,
-        onClick = {
-            val currentTime = System.currentTimeMillis()
-            val interval = currentTime - tap
-            if(interval <= 10000)
-                musicSettings.bpm = (60000 / interval).toInt() //converts to bpm (min of 6 bpm)
-            tap = System.currentTimeMillis()
-        }) {}
+        onClick = remember {{onTap()}} ) {}
 }
 
 @Composable
-private fun TimeSignatureControl(modifier: Modifier = Modifier, musicSettings: PersistentMusicSegment,fontSize: Int, numerator: Int, denominator: Int) =
+private fun TimeSignatureControl(
+    modifier: Modifier = Modifier,
+    decrementNumerator: () -> Unit,
+    incrementNumerator: () -> Unit,
+    decrementDenominator: () -> Unit,
+    incrementDenominator: () -> Unit,
+    fontSize: Int,
+    numerator: Int,
+    denominator: Int) =
     ConstraintLayout(
         modifier = modifier,
         constraintSet = timeSignatureControlConstraint()
     ) {
-        @Composable
-        fun SmallButton(
-            layoutId: String, contents: @Composable () -> Unit, onClick: () -> Unit
-        ) = MusicButton(
-            modifier = Modifier
-                .size(ScreenSettings.smallButtonContainerHeight)
-                .layoutId(layoutId),
-            isHoldable = false,
-            contents = contents,
-            onClick = onClick,
-        )
-        SmallButton("topLeftButton", onClick = { musicSettings.numerator -= 1 }, contents = {})
-        SmallButton("topRightButton", onClick = { musicSettings.numerator += 1 }, contents = {})
-        SmallButton("bottomLeftButton", onClick = {
-            musicSettings.denominator /= 2
-            val n = musicSettings.numerator
-            musicSettings.numerator = if(n != 1) 1 else 2
-            musicSettings.numerator = n}, contents = {})
-        SmallButton("bottomRightButton", onClick = {
-            musicSettings.denominator *= 2
-            val n = musicSettings.numerator
-            musicSettings.numerator = if(n != 1) 1 else 2
-            musicSettings.numerator = n}, contents = {})
+        SmallButton("topLeftButton", onClick = decrementNumerator, contents = {})
+        SmallButton("topRightButton", onClick = incrementNumerator, contents = {})
+        SmallButton("bottomLeftButton", onClick = decrementDenominator, contents = {})
+        SmallButton("bottomRightButton", onClick = incrementDenominator, contents = {})
     TimeSignature(
         modifier = modifier
             .width(100.dp)
@@ -128,6 +136,18 @@ private fun TimeSignatureControl(modifier: Modifier = Modifier, musicSettings: P
         denominator = denominator
     )
 }
+
+@Composable
+private fun SmallButton(
+    layoutId: String, contents: @Composable () -> Unit, onClick: () -> Unit
+) = Button(
+    modifier = Modifier
+        .size(ScreenSettings.smallButtonContainerHeight)
+        .layoutId(layoutId),
+    isHoldable = false,
+    contents = contents,
+    onClick = onClick,
+)
 
 @Composable
 private fun TimeSignature(modifier: Modifier = Modifier, fontSize: Int, numerator: Int, denominator: Int) =

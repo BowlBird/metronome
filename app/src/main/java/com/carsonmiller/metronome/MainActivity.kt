@@ -1,100 +1,120 @@
 package com.carsonmiller.metronome
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.layoutId
 import com.carsonmiller.metronome.components.*
 import com.carsonmiller.metronome.ui.theme.MetronomeTheme
 import com.carsonmiller.metronome.state.*
-import kotlinx.coroutines.delay
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors
 
 class ComposeActivity : ComponentActivity() {
+    private var musicSheetList: MusicSheetList? = null
+    private var appSettings: AppSettings? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        musicSheetList = MusicSheetList(this)
+        appSettings = AppSettings(this)
+
         setContent {
             MetronomeTheme {
                 MainLayout(
-                    musicSettingsList = PersistentMusicSegmentList(this),
-                    appSettings = PersistentAppSettings(this)
+                    musicSheetList = musicSheetList ?: MusicSheetList(this),
+                    appSettings = appSettings ?: AppSettings(this)
                 )
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        musicSheetList?.load()
+        appSettings?.load()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        musicSheetList?.save()
+        appSettings?.save()
+    }
+
 }
 
 @Composable
-fun MainLayout(musicSettingsList: PersistentMusicSegmentList, appSettings: PersistentAppSettings) =
+fun MainLayout(musicSheetList: MusicSheetList, appSettings: AppSettings) {
     ConstraintLayout(
-        remember {containerConstraints()},
+        remember { containerConstraints() },
         modifier = Modifier
             .fillMaxSize()
             .background(color = colorScheme.background)
     ) {
         /* logic for what musicSetting in the list is the current one */
-        val musicSettings by remember {mutableStateOf(musicSettingsList[appSettings.currentMusicSettings])}
+        val musicSheet by remember { mutableStateOf(musicSheetList[musicSheetList.currentMusicSheet]) }
+
+        //starts metronome
+        StartEngine(musicSheet, musicSheetList, appSettings)
+
         //text for bpm
         BpmTextBody(
             modifier = Modifier
-                .wrapContentSize()
-                .layoutId("bpmText"), bpm = musicSettings.bpm
+                .layoutId("bpmText"),
+            bpm = musicSheet.rawBPM,
+            height = ScreenSettings.bpmTextContainerHeight
         )
-        Sheet(
+
+        SheetBody(
             modifier = Modifier
-                .containerModifier(ScreenSettings.headerContainerHeight)
                 .layoutId("sheet"),
-            musicSettings = musicSettings,
+            musicSheet = musicSheet
         )
-        Bar(
+
+        BarBody(
             modifier = Modifier
-                .containerModifier(5.dp)
                 .layoutId("bar"),
-            musicSettings.currentNote, musicSettings.numOfNotes)
+            currentNote = musicSheet.currentNote,
+            numOfNotes = musicSheet.numOfNotes,
+            playing = appSettings.playing,
+            bpm = musicSheet.bpm,
+            height = ScreenSettings.barHeight
+        )
 
         //Button container
+        val decrementRounded = remember { { musicSheet.rawBPM = getRoundedMetronomeBPM(musicSheet.rawBPM, false) } }
+        val decrement = remember {{musicSheet.rawBPM -= 1}}
+        val togglePlay = remember {{appSettings.playing = !appSettings.playing}}
+        val increment = remember {{musicSheet.rawBPM += 1}}
+        val incrementRounded = remember {{musicSheet.rawBPM = getRoundedMetronomeBPM(musicSheet.rawBPM, true)}}
+
         ButtonBody(
             modifier = Modifier
-                .containerModifier(ScreenSettings.buttonContainerHeight)
                 .layoutId("buttonBox"),
-            settings = musicSettings, //only pass in settings when state is being changed.
-            appSettings = appSettings
+            decrementRounded = decrementRounded,
+            decrement = decrement,
+            togglePlay = togglePlay,
+            increment = increment,
+            incrementRounded = incrementRounded,
+            height = remember {ScreenSettings.buttonContainerHeight}
         )
 
+
+
+
         //settings container
-        PagerContainer(modifier = Modifier
-            .containerModifier(ScreenSettings.settingsContainerHeight)
-            .layoutId("settingsBox"),
-            { SettingsPage(musicSegmentState = musicSettings)},
+        PagerContainer(
+            modifier = Modifier
+                .layoutId("settingsBox"),
+            fillMaxWidth = true,
+            height = ScreenSettings.settingsContainerHeight,
+            { SettingsPage(musicSheet = musicSheet) }, //for some reason, this doesn't cause recomposition so its ok.
             { Text("Test2") },
             { Text("Test3") })
-
-
-            //increments current note if the metronome is playing
-            LaunchedEffect(musicSettings.bpm + musicSettings.subdivision) { //calculation is meaningless, just to make it reset when either value changes
-                val delay = (60000f / musicSettings.subdivBPM).toLong()
-                while (true) {
-                    delay(delay)
-                    if (appSettings.playing) {
-                        if (musicSettings.currentNote == musicSettings.numOfNotes - 1) {
-                            musicSettings.currentNote = 0
-
-                            if (musicSettingsList.count - 1 == appSettings.currentMusicSettings)
-                                appSettings.currentMusicSettings = 0
-                        } else
-                            musicSettings.currentNote += 1
-                    } else
-                        musicSettings.currentNote = 0
-                }
-            }
         }
+    }
