@@ -1,10 +1,12 @@
 package com.carsonmiller.metronome.state.enums
 
+import androidx.compose.runtime.Stable
 import com.carsonmiller.metronome.R
 
 /**
  * Container enum for each note image
  */
+@Stable
 enum class NoteType {
     WholeNote {
         override val drawable = R.drawable.ic_whole_note

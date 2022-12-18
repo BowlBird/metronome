@@ -8,7 +8,7 @@ import kotlinx.coroutines.*
 /**
  * holder that is a list so that multiple music settings can be loaded
  */
-class MusicSheetList(private val activity: Activity) : Model(activity) {
+class MusicSheetList : Savable {
 
     /* strings for sharedPref */
     private val countString = "count"
@@ -16,17 +16,17 @@ class MusicSheetList(private val activity: Activity) : Model(activity) {
 
     /* backing fields */
     private var _count: Int by mutableStateOf(
-        storage.volatileGet(countString, 1)
+        Store.volatileGet(countString, 1)
     )
 
     private var _currentMusicSheet: Int by mutableStateOf(
-        storage.volatileGet(currentMusicSheetString, 0)
+        Store.volatileGet(currentMusicSheetString, 0)
     )
 
     var count: Int
         get() = _count
         private set(value) {
-            _count = storage.volatilePut(when {
+            _count = Store.volatilePut(when {
                 value < 1 -> 1
                 else -> value
             }, countString)
@@ -35,7 +35,7 @@ class MusicSheetList(private val activity: Activity) : Model(activity) {
     var currentMusicSheet: Int
         get() = _currentMusicSheet
         set(value) {
-            _currentMusicSheet = storage.volatilePut(when {
+            _currentMusicSheet = Store.volatilePut(when {
                 value < 0 -> 0
                 else -> value
             }, currentMusicSheetString)
@@ -43,7 +43,7 @@ class MusicSheetList(private val activity: Activity) : Model(activity) {
 
     operator fun get(i: Int): MusicSheet {
         require(i in 0 until count)
-        return MusicSheet(activity, i)
+        return MusicSheet(i)
     }
 
     fun add() {
@@ -53,13 +53,13 @@ class MusicSheetList(private val activity: Activity) : Model(activity) {
     fun remove(i: Int) {
         repeat((count - 1) - i) {
             val index = it + i
-            val copyTo = MusicSheet(activity, index)
-            val copyFrom = MusicSheet(activity, index + 1)
+            val copyTo = MusicSheet(index)
+            val copyFrom = MusicSheet(index + 1)
             copyTo.denominator = copyFrom.denominator
             copyTo.numerator = copyFrom.numerator
             copyTo.rawBPM = copyFrom.rawBPM
         }
-        val cleanMusicSettings = MusicSheet(activity, --count)
+        val cleanMusicSettings = MusicSheet(--count)
         cleanMusicSettings.reset()
     }
 
@@ -74,8 +74,8 @@ class MusicSheetList(private val activity: Activity) : Model(activity) {
     }
 
     override fun save() {
-        storage.put(count, countString)
-        storage.put(currentMusicSheet, currentMusicSheetString)
+        Store.put(count, countString)
+        Store.put(currentMusicSheet, currentMusicSheetString)
 
         repeat(count) {
             get(it).save()
@@ -83,8 +83,8 @@ class MusicSheetList(private val activity: Activity) : Model(activity) {
     }
 
     override fun load() {
-        count = storage.get(countString, 1)
-        currentMusicSheet = storage.get(currentMusicSheetString, 0)
+        count = Store.get(countString, 1)
+        currentMusicSheet = Store.get(currentMusicSheetString, 0)
 
         repeat(count) {
             get(it).load()

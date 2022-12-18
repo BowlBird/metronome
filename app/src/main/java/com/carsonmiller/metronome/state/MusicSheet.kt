@@ -2,18 +2,17 @@ package com.carsonmiller.metronome.state
 
 import android.app.Activity
 import android.util.Log
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import com.carsonmiller.metronome.R
 import com.carsonmiller.metronome.state.enums.NoteIntensity
 import com.carsonmiller.metronome.state.enums.NoteType
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.ImmutableList
+import java.util.*
 
 /**
  * holder for settings
  */
-class MusicSheet(private val activity: Activity, private val index: Int) : Model(activity) {
+class MusicSheet(private val index: Int) : Savable {
 
     /* strings for sharedPref */
     private val numeratorString = "numerator $index"
@@ -24,26 +23,26 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
 
     /* backing fields */
     private var _numerator: Int by mutableStateOf(
-        storage.volatileGet(numeratorString, 4)
+        Store.volatileGet(numeratorString, 4)
     )
     private var _denominator: Int by mutableStateOf(
-        storage.volatileGet(denominatorString, 4)
+        Store.volatileGet(denominatorString, 4)
     )
     private var _rawBPM: Int by mutableStateOf(
-        storage.volatileGet(rawBpmString, 100)
+        Store.volatileGet(rawBpmString, 100)
     )
     private var _subdivision: Int by mutableStateOf(
-        storage.volatileGet(subdivisionString, 1)
+        Store.volatileGet(subdivisionString, 1)
     )
     private var _currentNote: Int by mutableStateOf(
-        storage.volatileGet(currentNoteString, 0)
+        Store.volatileGet(currentNoteString, 0)
     )
 
     var numerator: Int
         get() = _numerator
         set(value) {
             _numerator =
-                storage.volatilePut(when {
+                Store.volatilePut(when {
                 value < 1 -> 1
                 value > 99 -> 99
                 else -> value
@@ -54,7 +53,7 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     var denominator: Int
         get() = _denominator
         set(value) {
-            _denominator = storage.volatilePut(when {
+            _denominator = Store.volatilePut(when {
                 value < 1 -> 1
                 value > 32 -> 32
                 else -> value
@@ -65,7 +64,7 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     var rawBPM: Int
         get() = _rawBPM
         set(value) {
-            _rawBPM = storage.volatilePut(when {
+            _rawBPM = Store.volatilePut(when {
                 value < 1 -> 1
                 value > 999 -> 999
                 else -> value
@@ -78,7 +77,7 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     var subdivision: Int
         get() = _subdivision
         set(value) {
-            _subdivision = storage.volatilePut(when {
+            _subdivision = Store.volatilePut(when {
                 value < 1 -> 1
                 else -> value
             }, subdivisionString)
@@ -88,7 +87,7 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     var currentNote: Int
         get() = _currentNote
         set(value) {
-            _currentNote = storage.volatilePut(when {
+            _currentNote = Store.volatilePut(when {
                 value < 0 -> 0
                 value > numOfNotes - 1 -> numOfNotes - 1
                 else -> value
@@ -98,7 +97,7 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     val numOfNotes: Int
         get() = subdivision * numerator
 
-    operator fun get(i: Int) = Note(index, i, activity)
+    operator fun get(i: Int) = Note(index, i)
 
     private fun getNoteImage(index: Int, level: NoteIntensity): Int {
         fun connection(
@@ -108,7 +107,7 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
         ): Int {
             fun distanceFromRest(i: Int): Int {
                 for (j in i downTo 0) {
-                    if (Note(this.index, j, activity).level == NoteIntensity.Rest)
+                    if (Note(this.index, j).level == NoteIntensity.Rest)
                         return i - j
                 }
                 return i - groupSize + 1
@@ -128,7 +127,6 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
                 Note(
                     index,
                     i + 1,
-                    activity
                 ).level == NoteIntensity.Rest && i % 3 != 0 -> 0
                 i % 3 == 0 -> 2
                 i % 3 == 2 && restDist != 1 -> 0
@@ -186,7 +184,7 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     }
 
     private fun updateNoteImage(i: Int) {
-        val note = Note(index, i, activity)
+        val note = Note(index, i)
         note.noteImage = getNoteImage(i, note.level)
         note.accentImage = when (note.level) {
             NoteIntensity.Loud -> R.drawable.ic_accent
@@ -196,11 +194,17 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     }
 
     fun updateAllNoteImages() {
-        activity.runOnUiThread {
-            for (i in 0 until numOfNotes) {
-                updateNoteImage(i)
-            }
+        for (i in 0 until numOfNotes) {
+            updateNoteImage(i)
         }
+    }
+
+    fun asList(): ImmutableList<Note> {
+        val mutableList = mutableListOf<Note>()
+        repeat(numOfNotes) {
+            mutableList.add(get(it))
+        }
+        return ImmutableList.copyOf(mutableList)
     }
 
     fun reset() {
@@ -212,10 +216,10 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     }
 
     override fun save() {
-        storage.put(numerator, numeratorString)
-        storage.put(denominator, denominatorString)
-        storage.put(rawBPM, rawBpmString)
-        storage.put(subdivision, subdivisionString)
+        Store.put(numerator, numeratorString)
+        Store.put(denominator, denominatorString)
+        Store.put(rawBPM, rawBpmString)
+        Store.put(subdivision, subdivisionString)
 
         repeat(numOfNotes) {
             get(it).save()
@@ -223,10 +227,10 @@ class MusicSheet(private val activity: Activity, private val index: Int) : Model
     }
 
     override fun load() {
-        numerator = storage.get(numeratorString, 4)
-        denominator = storage.get(denominatorString, 4)
-        rawBPM = storage.get(rawBpmString, 100)
-        subdivision = storage.get(subdivisionString, 1)
+        numerator = Store.get(numeratorString, 4)
+        denominator = Store.get(denominatorString, 4)
+        rawBPM = Store.get(rawBpmString, 100)
+        subdivision = Store.get(subdivisionString, 1)
 
         repeat(numOfNotes) {
             get(it).load()

@@ -94,9 +94,13 @@ fun sheetConstraint() = ConstraintSet {
 
 fun sheetBodyConstraint() = ConstraintSet {
     val bar = createRefFor("bar")
+    val row = createRefFor("row")
 
     constrain(bar) {
-        centerVerticallyTo(parent, 0f)
+
+    }
+    constrain(row) {
+        centerVerticallyTo(parent)
     }
 }
 

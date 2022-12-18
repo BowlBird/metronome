@@ -8,19 +8,19 @@ import kotlinx.coroutines.*
 /**
  * holds certain states of the app
  */
-class AppSettings(activity: Activity) : Model(activity){
+class AppSettings : Savable{
     /* strings for sharedPref */
     private val playingString = "playing"
 
     /* backing fields */
     private var _playing: Boolean by mutableStateOf(
-        storage.volatileGet(playingString, false)
+        Store.volatileGet(playingString, false)
     )
 
     var playing: Boolean
         get() = _playing
         set(value) {
-            _playing = storage.volatilePut(value, playingString)
+            _playing = Store.volatilePut(value, playingString)
         }
 
     fun reset() {
@@ -28,10 +28,10 @@ class AppSettings(activity: Activity) : Model(activity){
     }
 
     override fun save() {
-        storage.put(playing, playingString)
+        Store.put(playing, playingString)
     }
 
     override fun load() {
-        playing = storage.get(playingString, false)
+        playing = Store.get(playingString, false)
     }
 }

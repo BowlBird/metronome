@@ -21,14 +21,14 @@ class ComposeActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        musicSheetList = MusicSheetList(this)
-        appSettings = AppSettings(this)
+        musicSheetList = MusicSheetList()
+        appSettings = AppSettings()
 
         setContent {
             MetronomeTheme {
                 MainLayout(
-                    musicSheetList = musicSheetList ?: MusicSheetList(this),
-                    appSettings = appSettings ?: AppSettings(this)
+                    musicSheetList = musicSheetList ?: MusicSheetList(),
+                    appSettings = appSettings ?: AppSettings()
                 )
             }
         }
@@ -36,6 +36,10 @@ class ComposeActivity : ComponentActivity() {
 
     override fun onStart() {
         super.onStart()
+
+        /* allows for storing values */
+        Store.initialize(this)
+
         musicSheetList?.load()
         appSettings?.load()
     }
@@ -73,7 +77,10 @@ fun MainLayout(musicSheetList: MusicSheetList, appSettings: AppSettings) {
         SheetBody(
             modifier = Modifier
                 .layoutId("sheet"),
-            musicSheet = musicSheet
+            height = ScreenSettings.headerContainerHeight,
+            numOfNotes = musicSheet.numOfNotes,
+            subdivision = musicSheet.subdivision,
+            musicSheetIndex = musicSheetList.currentMusicSheet
         )
 
         BarBody(
@@ -101,11 +108,8 @@ fun MainLayout(musicSheetList: MusicSheetList, appSettings: AppSettings) {
             togglePlay = togglePlay,
             increment = increment,
             incrementRounded = incrementRounded,
-            height = remember {ScreenSettings.buttonContainerHeight}
+            height = ScreenSettings.buttonContainerHeight
         )
-
-
-
 
         //settings container
         PagerContainer(
@@ -113,7 +117,7 @@ fun MainLayout(musicSheetList: MusicSheetList, appSettings: AppSettings) {
                 .layoutId("settingsBox"),
             fillMaxWidth = true,
             height = ScreenSettings.settingsContainerHeight,
-            { SettingsPage(musicSheet = musicSheet) }, //for some reason, this doesn't cause recomposition so its ok.
+            { SettingsPage(musicSheet = musicSheet) },
             { Text("Test2") },
             { Text("Test3") })
         }
