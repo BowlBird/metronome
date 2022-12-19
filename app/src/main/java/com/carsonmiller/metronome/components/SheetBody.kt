@@ -2,18 +2,19 @@ package com.carsonmiller.metronome.components
 
 import android.app.Activity
 import android.graphics.BitmapFactory
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -30,13 +31,22 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.layoutId
 import com.carsonmiller.metronome.R
+import com.carsonmiller.metronome.StableList
 import com.carsonmiller.metronome.state.*
 import com.carsonmiller.metronome.state.enums.NoteIntensity
-import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.ImmutableList
 import kotlin.math.max
 
 @Composable
-fun SheetBody(modifier: Modifier = Modifier, height: Dp, numOfNotes: Int, subdivision: Int, musicSheetIndex: Int) =
+fun SheetBody(
+    modifier: Modifier = Modifier,
+    height: Dp,
+    numOfNotes: Int,
+    subdivision: Int,
+    musicSheetIndex: Int,
+    denominator: Int,
+    noteList: StableList<Note>,
+    musicSheet: MusicSheet
+) =
     ConstraintContainer(
         modifier = modifier,
         height = height,
@@ -44,7 +54,6 @@ fun SheetBody(modifier: Modifier = Modifier, height: Dp, numOfNotes: Int, subdiv
         constraintSet = sheetBodyConstraint()
     ) {
         val musicStaff = BitmapFactory.decodeResource(LocalContext.current.resources, R.drawable.ic_music_staff)
-
         //bar
         MusicStaff(
             modifier = Modifier
@@ -64,7 +73,11 @@ fun SheetBody(modifier: Modifier = Modifier, height: Dp, numOfNotes: Int, subdiv
                     modifier = Modifier.height(height),
                     numOfNotes = numOfNotes,
                     subdivision = subdivision,
-                    musicSheetIndex = musicSheetIndex)
+                    musicSheetIndex = musicSheetIndex,
+                    denominator = denominator,
+                    noteList = noteList,
+                    musicSheet = musicSheet
+            )
             }
         }
     }
@@ -78,7 +91,14 @@ private fun MusicStaff(modifier: Modifier = Modifier, musicStaffImage: Painter) 
         colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground))
 
 @Composable
-private fun Contents(modifier: Modifier = Modifier, numOfNotes: Int, subdivision: Int, musicSheetIndex: Int) {
+private fun Contents(
+    modifier: Modifier = Modifier,
+    numOfNotes: Int,
+    subdivision: Int,
+    musicSheetIndex: Int,
+    denominator: Int,
+    musicSheet: MusicSheet,
+    noteList: StableList<Note>) {
     val size = 45
     ConstraintLayout(
         constraintSet = sheetConstraint(),
@@ -97,12 +117,12 @@ private fun Contents(modifier: Modifier = Modifier, numOfNotes: Int, subdivision
         Notes(
             Modifier
                 .layoutId("notes"),
-            numOfNotes = numOfNotes,
             subdivision = subdivision,
-            musicSheetIndex = musicSheetIndex,
             size = size,
             onBackground = onBackground,
-            secondary = secondary
+            secondary = secondary,
+            noteList = noteList,
+            musicSheet = musicSheet
         )
     }
 }
@@ -114,7 +134,6 @@ private fun TripletIndicators(modifier: Modifier = Modifier, numOfNotes: Int, su
     userScrollEnabled = false
     ) {
         items(max(numOfNotes / 3, 1)) {
-            repeat(max(numOfNotes / 3, 1)) {
                 Image(
                     painterResource(id = R.drawable.ic_triplet_indicator),
                     modifier = Modifier.size(((size * 3) * 1.002).dp),
@@ -122,42 +141,33 @@ private fun TripletIndicators(modifier: Modifier = Modifier, numOfNotes: Int, su
                     colorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
                     alpha = if (subdivision == 3) 1f else 0f
                 )
-            }
         }
     }
 
 @Composable
 private fun Notes(
     modifier: Modifier = Modifier,
-    numOfNotes: Int,
     subdivision: Int,
-    musicSheetIndex: Int,
     size: Int,
+    noteList: StableList<Note>,
     onBackground: Color,
-    secondary: Color) {
+    secondary: Color,
+    musicSheet: MusicSheet
+) {
     LazyRow(
-        state = remember {LazyListState()},
+        state = rememberLazyListState(),
         modifier = modifier,
         userScrollEnabled = false,
     ) {
-        items(numOfNotes) { noteNum ->
-            val color = remember {if (noteNum % subdivision == 0) onBackground else secondary}
-            val note = Note(musicSheetIndex,noteNum)
+        items(noteList.list) { note ->
             Note(
                 modifier = Modifier
                     .height(size.dp)
                     .offset(y = (12).dp),
-                noteImage = note.noteImage,
-                accentImage = note.accentImage,
-                color = color,
-                updateNoteIntensity = remember {{
-                    note.level = when (note.level) {
-                        NoteIntensity.Rest -> NoteIntensity.Quiet
-                        NoteIntensity.Quiet -> NoteIntensity.Normal
-                        NoteIntensity.Normal -> NoteIntensity.Loud
-                        NoteIntensity.Loud -> NoteIntensity.Rest
-                    }
-                }}
+                note = note,
+                color = if (note.noteIndex % subdivision == 0) onBackground else secondary,
+                noteLevel = note.level,
+                musicSheet = musicSheet
             )
         }
     }
@@ -169,23 +179,40 @@ private fun Notes(
 @Composable
 private fun Note(
     modifier: Modifier = Modifier,
-    noteImage: Int,
-    accentImage: Int,
+    note: Note,
     color: Color,
-    updateNoteIntensity: () -> Unit) {
+    noteLevel: NoteIntensity,
+    musicSheet: MusicSheet
+) {
     Column {
         Image(
             modifier = modifier
                 .scale(1.004f) //hardcoded values for alignment
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() }, indication = null
-                ) { updateNoteIntensity() },
-            painter = painterResource(id = noteImage),
+                ) {
+                    note.level = when (noteLevel) {
+                        NoteIntensity.Rest -> NoteIntensity.Quiet
+                        NoteIntensity.Quiet -> NoteIntensity.Normal
+                        NoteIntensity.Normal -> NoteIntensity.Loud
+                        NoteIntensity.Loud -> NoteIntensity.Rest
+                    }
+                    //this works but sucks but I don't know how to do it better :3
+                    if(musicSheet.subdivision != 1) {
+                        musicSheet.subdivision--
+                        musicSheet.subdivision++
+                    }
+                    else {
+                        musicSheet.subdivision++
+                        musicSheet.subdivision--
+                    }
+                },
+            painter = painterResource(id = note.noteImage),
             contentDescription = "Note",
             colorFilter = ColorFilter.tint(color = color),
         )
         Image(
-            painterResource(accentImage),
+            painterResource(note.accentImage),
             modifier = modifier
                 .align(Alignment.CenterHorizontally)
                 .offset(y = (-16).dp),

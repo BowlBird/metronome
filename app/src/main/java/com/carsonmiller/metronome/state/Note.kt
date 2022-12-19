@@ -8,7 +8,7 @@ import com.carsonmiller.metronome.R
 import com.carsonmiller.metronome.state.enums.NoteIntensity
 import com.carsonmiller.metronome.state.enums.NoteType
 
-class Note(musicSettingsIndex: Int, noteIndex: Int) : Savable {
+data class Note(val musicSettingsIndex: Int, val noteIndex: Int) : Savable {
 
     /* strings for saving */
     private val levelString = "level $musicSettingsIndex $noteIndex"
@@ -59,5 +59,29 @@ class Note(musicSettingsIndex: Int, noteIndex: Int) : Savable {
         level = NoteIntensity.valueOf(Store.get(levelString, "Normal"))
         noteImage = Store.get(noteImageString, NoteType.QuarterNote.drawable)
         accentImage = Store.get(accentImageString, R.drawable.ic_blank)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Note
+
+        if (musicSettingsIndex != other.musicSettingsIndex) return false
+        if (noteIndex != other.noteIndex) return false
+        if (level != other.level) return false
+        if (noteImage != other.noteImage) return false
+        if (accentImage != other.accentImage) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = musicSettingsIndex
+        result = 31 * result + noteIndex
+        result = 31 * result + level.hashCode()
+        result = 31 * result + noteImage
+        result = 31 * result + accentImage
+        return result
     }
 }

@@ -80,7 +80,10 @@ fun MainLayout(musicSheetList: MusicSheetList, appSettings: AppSettings) {
             height = ScreenSettings.headerContainerHeight,
             numOfNotes = musicSheet.numOfNotes,
             subdivision = musicSheet.subdivision,
-            musicSheetIndex = musicSheetList.currentMusicSheet
+            musicSheetIndex = musicSheetList.currentMusicSheet,
+            denominator = musicSheet.denominator,
+            noteList = StableList(musicSheet.toList()),
+            musicSheet = musicSheet
         )
 
         BarBody(
@@ -122,3 +125,6 @@ fun MainLayout(musicSheetList: MusicSheetList, appSettings: AppSettings) {
             { Text("Test3") })
         }
     }
+
+@Stable
+public data class StableList<E>(val list: List<E>)

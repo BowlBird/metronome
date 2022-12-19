@@ -12,7 +12,7 @@ import java.util.*
 /**
  * holder for settings
  */
-class MusicSheet(private val index: Int) : Savable {
+data class MusicSheet(private val index: Int) : Savable {
 
     /* strings for sharedPref */
     private val numeratorString = "numerator $index"
@@ -199,12 +199,12 @@ class MusicSheet(private val index: Int) : Savable {
         }
     }
 
-    fun asList(): ImmutableList<Note> {
-        val mutableList = mutableListOf<Note>()
+    fun toList(): List<Note> {
+        val temp = mutableListOf<Note>()
         repeat(numOfNotes) {
-            mutableList.add(get(it))
+            temp.add(this[it])
         }
-        return ImmutableList.copyOf(mutableList)
+        return temp.toList()
     }
 
     fun reset() {
