@@ -1,13 +1,9 @@
 package com.carsonmiller.metronome.state
 
-import android.app.Activity
-import android.util.Log
 import androidx.compose.runtime.*
 import com.carsonmiller.metronome.R
 import com.carsonmiller.metronome.state.enums.NoteIntensity
 import com.carsonmiller.metronome.state.enums.NoteType
-import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.ImmutableList
-import java.util.*
 
 /**
  * holder for settings
@@ -99,42 +95,38 @@ data class MusicSheet(private val index: Int) : Savable {
 
     operator fun get(i: Int) = Note(index, i)
 
-    private fun getNoteImage(index: Int, level: NoteIntensity): Int {
-        fun connection(
-            i: Int,
-            numOfNotes: Int,
-            groupSize: Int = (denominator * subdivision) / 4
-        ): Int {
-            fun distanceFromRest(i: Int): Int {
-                for (j in i downTo 0) {
-                    if (Note(this.index, j).level == NoteIntensity.Rest)
-                        return i - j
-                }
-                return i - groupSize + 1
-            }
-            val restDist = distanceFromRest(i)
-            return if (groupSize % 3 != 0) when {
+    private fun getNoteImage(i: Int, level: NoteIntensity, restIndexes: List<Int>): Int {
+        fun connection(): Int {
+            val groupSize = (denominator * subdivision) / 4
+
+            fun distanceFromRest(): Int =
+                if(restIndexes.any { it <= i })
+                    i - restIndexes.last { it <= i }
+                else
+                    i - groupSize + 1
+
+            val restDist = distanceFromRest()
+            return if (groupSize % 3 > 0)
+            when {
                 i == 0 -> 2
                 restDist % groupSize == 1 -> 2
                 restDist % groupSize == 0 -> 0
-                get( i + 1).level == NoteIntensity.Rest -> 0
+                get(i + 1).level == NoteIntensity.Rest -> 0
                 i == numOfNotes - 1 -> 0
                 else -> 1
-            } else when {
+            }
+            else when {
                 i == 0 -> 2
                 restDist == 1 -> 2
                 restDist == 0 -> 0
-                Note(
-                    index,
-                    i + 1,
-                ).level == NoteIntensity.Rest && i % 3 != 0 -> 0
+                get(i + 1).level == NoteIntensity.Rest && i % 3 != 0 -> 0
                 i % 3 == 0 -> 2
-                i % 3 == 2 && restDist != 1 -> 0
+                i % 3 == 2 -> 0
                 i == numOfNotes - 1 -> 0
                 else -> 1
             }
         }
-        require(index in 0 until numOfNotes)
+        require(i in 0 until numOfNotes)
         return if (level == NoteIntensity.Rest)
             when (denominator * subdivision) {
                 1 -> NoteType.WholeRest.drawable
@@ -148,32 +140,31 @@ data class MusicSheet(private val index: Int) : Savable {
                 else -> throw Exception("This denominator doesn't exist!")
             }
         else {
-            val connection = connection(index, numOfNotes)
             when (denominator * subdivision) {
                 1 -> NoteType.WholeNote.drawable
                 2, 3 -> NoteType.HalfNote.drawable
                 4, 6 -> NoteType.QuarterNote.drawable
-                8, 12 -> when (connection) {
+                8, 12 -> when (connection()) {
                     0 -> NoteType.EighthNoteFrontConnected.drawable
                     1 -> NoteType.EighthNoteBothConnected.drawable
                     else -> NoteType.EighthNoteBackConnected.drawable
                 }
-                16, 24 -> when (connection) {
+                16, 24 -> when (connection()) {
                     0 -> NoteType.SixteenthNoteFrontConnected.drawable
                     1 -> NoteType.SixteenthNoteBothConnected.drawable
                     else -> NoteType.SixteenthNoteBackConnected.drawable
                 }
-                32, 48 -> when (connection) {
+                32, 48 -> when (connection()) {
                     0 -> NoteType.ThirtySecondNoteFrontConnected.drawable
                     1 -> NoteType.ThirtySecondNoteBothConnected.drawable
                     else -> NoteType.ThirtySecondNoteBackConnected.drawable
                 }
-                64, 96 -> when (connection) {
+                64, 96 -> when (connection()) {
                     0 -> NoteType.SixtyFourthNoteFrontConnected.drawable
                     1 -> NoteType.SixtyFourthNoteBothConnected.drawable
                     else -> NoteType.SixtyFourthNoteBackConnected.drawable
                 }
-                128 -> when (connection) {
+                128 -> when (connection()) {
                     0 -> NoteType.OneHundredTwentyEighthNoteFrontConnected.drawable
                     1 -> NoteType.OneHundredTwentyEighthNoteBothConnected.drawable
                     else -> NoteType.OneHundredTwentyEighthNoteBackConnected.drawable
@@ -182,20 +173,26 @@ data class MusicSheet(private val index: Int) : Savable {
             }
         }
     }
-
-    private fun updateNoteImage(i: Int) {
-        val note = Note(index, i)
-        note.noteImage = getNoteImage(i, note.level)
-        note.accentImage = when (note.level) {
-            NoteIntensity.Loud -> R.drawable.ic_accent
-            NoteIntensity.Quiet -> R.drawable.ic_soft
-            else -> R.drawable.ic_blank
-        }
+    private fun getAccentImage(intensity: NoteIntensity) = when(intensity) {
+        NoteIntensity.Loud -> R.drawable.ic_accent
+        NoteIntensity.Quiet -> R.drawable.ic_soft
+        else -> R.drawable.ic_blank
     }
 
-    fun updateAllNoteImages() {
+    private fun updateNoteImage(i: Int, restIndexes: List<Int>) {
+        val note = Note(index, i)
+
+        if(note.level == NoteIntensity.Rest || note.level == NoteIntensity.Quiet)
+            note.noteImage = getNoteImage(i, note.level, restIndexes)
+
+        note.accentImage = getAccentImage(note.level)
+    }
+
+    private fun updateAllNoteImages() {
+        val restList = toList().filter {it.level == NoteIntensity.Rest}.map {it.noteIndex}
+
         for (i in 0 until numOfNotes) {
-            updateNoteImage(i)
+            updateNoteImage(i, restList)
         }
     }
 

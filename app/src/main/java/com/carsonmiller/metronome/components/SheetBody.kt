@@ -1,26 +1,20 @@
 package com.carsonmiller.metronome.components
 
-import android.app.Activity
 import android.graphics.BitmapFactory
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -42,8 +36,6 @@ fun SheetBody(
     height: Dp,
     numOfNotes: Int,
     subdivision: Int,
-    musicSheetIndex: Int,
-    denominator: Int,
     noteList: StableList<Note>,
     musicSheet: MusicSheet
 ) =
@@ -73,8 +65,6 @@ fun SheetBody(
                     modifier = Modifier.height(height),
                     numOfNotes = numOfNotes,
                     subdivision = subdivision,
-                    musicSheetIndex = musicSheetIndex,
-                    denominator = denominator,
                     noteList = noteList,
                     musicSheet = musicSheet
             )
@@ -95,8 +85,6 @@ private fun Contents(
     modifier: Modifier = Modifier,
     numOfNotes: Int,
     subdivision: Int,
-    musicSheetIndex: Int,
-    denominator: Int,
     musicSheet: MusicSheet,
     noteList: StableList<Note>) {
     val size = 45
@@ -197,15 +185,13 @@ private fun Note(
                         NoteIntensity.Normal -> NoteIntensity.Loud
                         NoteIntensity.Loud -> NoteIntensity.Rest
                     }
+
+                    fun recompose(firstStep: Int) {
+                        musicSheet.subdivision += firstStep
+                        musicSheet.subdivision -= firstStep
+                    }
                     //this works but sucks but I don't know how to do it better :3
-                    if(musicSheet.subdivision != 1) {
-                        musicSheet.subdivision--
-                        musicSheet.subdivision++
-                    }
-                    else {
-                        musicSheet.subdivision++
-                        musicSheet.subdivision--
-                    }
+                    recompose(if(musicSheet.subdivision > 1) -1 else 1)
                 },
             painter = painterResource(id = note.noteImage),
             contentDescription = "Note",

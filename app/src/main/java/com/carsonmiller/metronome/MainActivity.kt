@@ -80,8 +80,6 @@ fun MainLayout(musicSheetList: MusicSheetList, appSettings: AppSettings) {
             height = ScreenSettings.headerContainerHeight,
             numOfNotes = musicSheet.numOfNotes,
             subdivision = musicSheet.subdivision,
-            musicSheetIndex = musicSheetList.currentMusicSheet,
-            denominator = musicSheet.denominator,
             noteList = StableList(musicSheet.toList()),
             musicSheet = musicSheet
         )

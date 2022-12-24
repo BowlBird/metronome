@@ -5,9 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Dp
 import com.carsonmiller.metronome.state.ScreenSettings
@@ -17,7 +15,7 @@ import com.carsonmiller.metronome.ui.theme.typography
  * Text that shows current bpm
  */
 @Composable
-fun BpmTextBody(modifier: Modifier = Modifier, bpm: Int = 100, height: Dp) {
+fun BpmTextBody(modifier: Modifier = Modifier, bpm: Int, height: Dp) {
     ConstraintContainer(
         modifier = modifier,
         constraintSet = textConstraints(),
