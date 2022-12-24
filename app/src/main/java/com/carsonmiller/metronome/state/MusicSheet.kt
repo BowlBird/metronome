@@ -182,8 +182,7 @@ data class MusicSheet(private val index: Int) : Savable {
     private fun updateNoteImage(i: Int, restIndexes: List<Int>) {
         val note = Note(index, i)
 
-        if(note.level == NoteIntensity.Rest || note.level == NoteIntensity.Quiet)
-            note.noteImage = getNoteImage(i, note.level, restIndexes)
+        note.noteImage = getNoteImage(i, note.level, restIndexes)
 
         note.accentImage = getAccentImage(note.level)
     }

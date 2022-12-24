@@ -162,11 +162,13 @@ private fun TimeSignature(modifier: Modifier = Modifier, fontSize: Int, numerato
                 .layoutId("numerator"),
             text = "$numerator",
             fontFamily = musicFont,
-            fontSize = spFontSize)
+            fontSize = spFontSize,
+            color = MaterialTheme.colorScheme.onBackground)
         Text(
             modifier = Modifier
                 .layoutId("denominator"),
             text = "$denominator",
             fontFamily = musicFont,
-            fontSize = spFontSize)
+            fontSize = spFontSize,
+            color = MaterialTheme.colorScheme.onBackground)
     }
